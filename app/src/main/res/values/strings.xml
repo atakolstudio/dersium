@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dersium</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_students">Öğrenciler</string>
+    <string name="nav_lessons">Dersler</string>
+    <string name="nav_calendar">Takvim</string>
+    <string name="nav_financial">Finansal</string>
+    <string name="nav_reports">Raporlar</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Common -->
+    <string name="save">Kaydet</string>
+    <string name="cancel">İptal</string>
+    <string name="delete">Sil</string>
+    <string name="edit">Düzenle</string>
+    <string name="add">Ekle</string>
+    <string name="back">Geri</string>
+    <string name="loading">Yükleniyor…</string>
+
+    <!-- Student -->
+    <string name="student_add">Öğrenci Ekle</string>
+    <string name="student_edit">Öğrenciyi Düzenle</string>
+    <string name="student_name">İsim</string>
+    <string name="student_surname">Soyisim</string>
+    <string name="student_school">Okul</string>
+    <string name="student_grade">Sınıf</string>
+    <string name="student_phone">Telefon</string>
+    <string name="student_parent">Veli Adı</string>
+    <string name="student_parent_phone">Veli Telefon</string>
+    <string name="student_fee">Ders Ücreti (₺)</string>
+    <string name="student_notes">Notlar</string>
+
+    <!-- Lesson -->
+    <string name="lesson_add">Ders Ekle</string>
+    <string name="lesson_edit">Dersi Düzenle</string>
+    <string name="lesson_topic">Konu</string>
+    <string name="lesson_date">Tarih</string>
+    <string name="lesson_time">Saat</string>
+    <string name="lesson_duration">Süre</string>
+
+    <!-- Payment -->
+    <string name="payment_paid">Ödendi</string>
+    <string name="payment_pending">Bekleyen</string>
+    <string name="payment_cancelled">İptal</string>
+
+    <!-- Financial -->
+    <string name="income">Gelir</string>
+    <string name="expense">Gider</string>
+    <string name="total">Toplam</string>
+    <string name="net">Net</string>
+
+    <!-- Auth -->
+    <string name="pin_enter">PIN Girin</string>
+    <string name="pin_wrong">Yanlış PIN, tekrar deneyin</string>
+    <string name="biometric_prompt_title">Dersium</string>
+    <string name="biometric_prompt_subtitle">Uygulamaya erişmek için biyometrik doğrulama yapın</string>
+    <string name="biometric_negative">PIN Kullan</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_lessons">Ders Hatırlatmaları</string>
+    <string name="notification_channel_lessons_desc">Yaklaşan ders bildirimleri</string>
+    <string name="notification_channel_payments">Ödeme Hatırlatmaları</string>
+    <string name="notification_channel_payments_desc">Bekleyen ödeme bildirimleri</string>
+    <string name="notification_channel_general">Genel</string>
+    <string name="notification_channel_general_desc">Genel uygulama bildirimleri</string>
+</resources>

@@ -1,0 +1,112 @@
+package com.dersium.feature.students
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dersium.core.domain.model.PaymentType
+import com.dersium.core.domain.model.Student
+import com.dersium.core.domain.repository.StudentRepository
+import com.dersium.core.domain.repository.UserPreferencesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class AddEditStudentUiState(
+    val isLoading: Boolean = false,
+    val name: String = "",
+    val surname: String = "",
+    val school: String = "",
+    val grade: String = "",
+    val parentName: String = "",
+    val parentPhone: String = "",
+    val phone: String = "",
+    val lessonFee: String = "",
+    val paymentType: PaymentType = PaymentType.UPFRONT,
+    val lessonCountForPayment: String = "4",
+    val notes: String = "",
+    val avatarColor: String = "#6366F1",
+    val isActive: Boolean = true,
+    val isEditMode: Boolean = false,
+    val isSaved: Boolean = false,
+    val nameError: String? = null,
+    val feeError: String? = null,
+    val activeSeasonId: Long = 1L,
+)
+
+@HiltViewModel
+class AddEditStudentViewModel @Inject constructor(
+    private val studentRepository: StudentRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(AddEditStudentUiState())
+    val state: StateFlow<AddEditStudentUiState> = _state.asStateFlow()
+    private var editingId: Long = 0L
+
+    init {
+        viewModelScope.launch {
+            userPreferencesRepository.userPreferences.first().let { prefs ->
+                _state.update { it.copy(activeSeasonId = prefs.activeSeasonId) }
+            }
+        }
+    }
+
+    fun loadStudent(studentId: Long) {
+        editingId = studentId
+        viewModelScope.launch {
+            studentRepository.getStudentById(studentId).first()?.let { s ->
+                _state.update {
+                    it.copy(
+                        isEditMode = true,
+                        name = s.name, surname = s.surname,
+                        school = s.school, grade = s.grade,
+                        parentName = s.parentName, parentPhone = s.parentPhone,
+                        phone = s.phone, lessonFee = s.lessonFee.toInt().toString(),
+                        paymentType = s.paymentType,
+                        lessonCountForPayment = s.lessonCountForPayment.toString(),
+                        notes = s.notes, avatarColor = s.avatarColor, isActive = s.isActive,
+                    )
+                }
+            }
+        }
+    }
+
+    fun onNameChange(v: String) = _state.update { it.copy(name = v, nameError = null) }
+    fun onSurnameChange(v: String) = _state.update { it.copy(surname = v) }
+    fun onSchoolChange(v: String) = _state.update { it.copy(school = v) }
+    fun onGradeChange(v: String) = _state.update { it.copy(grade = v) }
+    fun onParentNameChange(v: String) = _state.update { it.copy(parentName = v) }
+    fun onParentPhoneChange(v: String) = _state.update { it.copy(parentPhone = v) }
+    fun onPhoneChange(v: String) = _state.update { it.copy(phone = v) }
+    fun onLessonFeeChange(v: String) = _state.update { it.copy(lessonFee = v, feeError = null) }
+    fun onPaymentTypeChange(v: PaymentType) = _state.update { it.copy(paymentType = v) }
+    fun onLessonCountChange(v: String) = _state.update { it.copy(lessonCountForPayment = v) }
+    fun onNotesChange(v: String) = _state.update { it.copy(notes = v) }
+    fun onIsActiveChange(v: Boolean) = _state.update { it.copy(isActive = v) }
+
+    fun save() {
+        val s = _state.value
+        var hasError = false
+        if (s.name.isBlank()) { _state.update { it.copy(nameError = "İsim zorunludur") }; hasError = true }
+        val fee = s.lessonFee.toDoubleOrNull()
+        if (fee == null || fee <= 0) { _state.update { it.copy(feeError = "Geçerli bir ücret girin") }; hasError = true }
+        if (hasError) return
+
+        viewModelScope.launch {
+            val student = Student(
+                id = if (s.isEditMode) editingId else 0L,
+                name = s.name.trim(), surname = s.surname.trim(),
+                school = s.school.trim(), grade = s.grade.trim(),
+                parentName = s.parentName.trim(), parentPhone = s.parentPhone.trim(),
+                phone = s.phone.trim(), lessonFee = fee!!,
+                paymentType = s.paymentType,
+                lessonCountForPayment = s.lessonCountForPayment.toIntOrNull() ?: 4,
+                notes = s.notes.trim(), avatarColor = s.avatarColor,
+                isActive = s.isActive, seasonId = s.activeSeasonId,
+            )
+            if (s.isEditMode) studentRepository.updateStudent(student)
+            else studentRepository.insertStudent(student)
+            _state.update { it.copy(isSaved = true) }
+        }
+    }
+}
