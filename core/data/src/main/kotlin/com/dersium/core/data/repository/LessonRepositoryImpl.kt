@@ -16,6 +16,9 @@ class LessonRepositoryImpl @Inject constructor(
     private val lessonDao: LessonDao,
 ) : LessonRepository {
 
+    override fun getAllLessonsAllSeasons(): Flow<List<Lesson>> =
+        lessonDao.getAllLessonsAllSeasons().map { it.map { e -> e.toDomain() } }
+
     override fun getAllLessons(seasonId: Long): Flow<List<Lesson>> =
         lessonDao.getAllLessons(seasonId).map { it.map { e -> e.toDomain() } }
 

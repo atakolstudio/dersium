@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 interface LessonRepository {
     fun getAllLessons(seasonId: Long): Flow<List<Lesson>>
+    fun getAllLessonsAllSeasons(): Flow<List<Lesson>>
     fun getLessonsByStudent(studentId: Long): Flow<List<Lesson>>
     fun getLessonsByDate(date: LocalDate): Flow<List<Lesson>>
     fun getLessonsByDateRange(startDate: LocalDate, endDate: LocalDate): Flow<List<Lesson>>
