@@ -20,6 +20,7 @@ enum class ReportTab(val label: String) {
 data class StudentIncome(val student: Student, val totalIncome: Double, val lessonCount: Int, val paidAmount: Double)
 data class MonthlyData(val month: String, val lessonCount: Int, val income: Double)
 data class DayData(val day: String, val dayOfWeek: DayOfWeek, val lessonCount: Int, val income: Double)
+data class SeasonStats(val season: Season, val lessonCount: Int, val totalIncome: Double, val paidAmount: Double, val pendingAmount: Double, val studentCount: Int, val avgPerLesson: Double, val collectionRate: Double)
 
 data class ReportsUiState(
     val tab: ReportTab = ReportTab.STUDENT,
@@ -38,7 +39,8 @@ data class ReportsUiState(
     val pendingAmount: Double = 0.0,
     val dayData: List<DayData> = emptyList(),
     val bestDay: DayData? = null,
-    val seasonName: String = "",
+    val activeSeasonName: String = "",
+    val allSeasonStats: List<SeasonStats> = emptyList(),
     val currency: String = "₺",
 )
 
@@ -50,76 +52,47 @@ class ReportsViewModel @Inject constructor(
     private val financialRepository: FinancialRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
-
     private val _tab = MutableStateFlow(ReportTab.STUDENT)
 
     val uiState: StateFlow<ReportsUiState> = userPreferencesRepository.userPreferences
         .flatMapLatest { prefs ->
             val seasonId = prefs.activeSeasonId
-            combine(
-                studentRepository.getAllStudents(seasonId),
-                lessonRepository.getAllLessons(seasonId),
-                financialRepository.getActiveSeason(),
-                _tab,
-            ) { students, lessons, season, tab ->
-                val paidLessons = lessons.filter { it.isPaid }
-                val pendingLessons = lessons.filter { !it.isPaid }
-                val paidAmount = paidLessons.sumOf { it.fee }
-                val pendingAmount = pendingLessons.sumOf { it.fee }
-                val totalIncome = paidAmount
-                val avgPerLesson = if (paidLessons.isNotEmpty()) totalIncome / paidLessons.size else 0.0
+            combine(studentRepository.getAllStudents(seasonId), lessonRepository.getAllLessons(seasonId), financialRepository.getAllSeasons(), _tab) { students, lessons, allSeasons, tab ->
+                val paid = lessons.filter { it.isPaid }
+                val pending = lessons.filter { !it.isPaid }
+                val paidAmt = paid.sumOf { it.fee }
+                val pendingAmt = pending.sumOf { it.fee }
+                val avg = if (paid.isNotEmpty()) paidAmt / paid.size else 0.0
 
-                // Student incomes
                 val studentIncomes = students.map { s ->
-                    val sLessons = lessons.filter { it.studentId == s.id }
-                    StudentIncome(
-                        student = s,
-                        totalIncome = sLessons.sumOf { it.fee },
-                        lessonCount = sLessons.size,
-                        paidAmount = sLessons.filter { it.isPaid }.sumOf { it.fee },
-                    )
+                    val sl = lessons.filter { it.studentId == s.id }
+                    StudentIncome(s, sl.sumOf { it.fee }, sl.size, sl.filter { it.isPaid }.sumOf { it.fee })
                 }.sortedByDescending { it.lessonCount }
 
-                // Monthly
-                val monthly = lessons.groupBy { "${it.date.year}-${it.date.monthValue.toString().padStart(2, '0')}" }
-                    .map { (month, ls) -> MonthlyData(month, ls.size, ls.filter { it.isPaid }.sumOf { it.fee }) }
-                    .sortedBy { it.month }
+                val monthly = lessons.groupBy { "${it.date.year}-${it.date.monthValue.toString().padStart(2,'0')}" }
+                    .map { (m, ls) -> MonthlyData(m, ls.size, ls.filter { it.isPaid }.sumOf { it.fee }) }.sortedBy { it.month }
 
-                // Day of week
-                val dayMap = lessons.groupBy { it.date.dayOfWeek }
                 val dayData = DayOfWeek.entries.map { dow ->
-                    val ls = dayMap[dow] ?: emptyList()
-                    DayData(
-                        day = dow.getDisplayName(TextStyle.SHORT, Locale("tr")),
-                        dayOfWeek = dow,
-                        lessonCount = ls.size,
-                        income = ls.filter { it.isPaid }.sumOf { it.fee },
-                    )
+                    val ls = lessons.filter { it.date.dayOfWeek == dow }
+                    DayData(dow.getDisplayName(TextStyle.SHORT, Locale("tr")), dow, ls.size, ls.filter { it.isPaid }.sumOf { it.fee })
                 }
 
-                ReportsUiState(
-                    tab = tab,
-                    studentIncomes = studentIncomes,
-                    averagePerLesson = avgPerLesson,
-                    totalLessons = lessons.size,
-                    totalIncome = totalIncome,
-                    minIncome = paidLessons.minOfOrNull { it.fee } ?: 0.0,
-                    maxIncome = paidLessons.maxOfOrNull { it.fee } ?: 0.0,
-                    monthlyData = monthly,
-                    activeStudents = students.filter { it.isActive },
-                    collectionRate = if (totalIncome + pendingAmount > 0) (paidAmount / (paidAmount + pendingAmount) * 100) else 100.0,
-                    paidLessons = paidLessons.size,
-                    pendingLessons = pendingLessons.size,
-                    paidAmount = paidAmount,
-                    pendingAmount = pendingAmount,
-                    dayData = dayData,
-                    bestDay = dayData.maxByOrNull { it.income },
-                    seasonName = season?.displayName ?: "",
-                    currency = prefs.currency,
-                )
+                val allSeasonStats = allSeasons.map { season ->
+                    val sl = if (season.id == seasonId) lessons else emptyList()
+                    val sp = sl.filter { it.isPaid }.sumOf { it.fee }
+                    val su = sl.filter { !it.isPaid }.sumOf { it.fee }
+                    SeasonStats(season, sl.size, sp + su, sp, su, sl.map { it.studentId }.distinct().size,
+                        if (sl.isNotEmpty()) (sp + su) / sl.size else 0.0,
+                        if (sp + su > 0) (sp / (sp + su) * 100) else 0.0)
+                }.sortedByDescending { it.season.startYear }
+
+                ReportsUiState(tab, studentIncomes, avg, lessons.size, paidAmt, paid.minOfOrNull { it.fee } ?: 0.0,
+                    paid.maxOfOrNull { it.fee } ?: 0.0, monthly, students.filter { it.isActive },
+                    if (paidAmt + pendingAmt > 0) (paidAmt / (paidAmt + pendingAmt) * 100) else 0.0,
+                    paid.size, pending.size, paidAmt, pendingAmt, dayData, dayData.maxByOrNull { it.income },
+                    allSeasons.find { it.id == seasonId }?.displayName ?: "", allSeasonStats, prefs.currency)
             }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReportsUiState())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReportsUiState())
 
     fun setTab(t: ReportTab) { _tab.value = t }
 }
