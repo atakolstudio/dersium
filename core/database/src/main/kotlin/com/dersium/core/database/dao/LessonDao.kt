@@ -8,16 +8,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LessonDao {
 
-    @Query("SELECT * FROM lesson_with_student WHERE seasonId = :seasonId ORDER BY date DESC, startTimeMinutes ASC")
+    @Query("SELECT * FROM lesson_with_student WHERE seasonId = :seasonId ORDER BY date DESC, startTime ASC")
     fun getAllLessons(seasonId: Long): Flow<List<LessonWithStudentView>>
 
     @Query("SELECT * FROM lesson_with_student WHERE studentId = :studentId ORDER BY date DESC")
     fun getLessonsByStudent(studentId: Long): Flow<List<LessonWithStudentView>>
 
-    @Query("SELECT * FROM lesson_with_student WHERE date = :dateEpoch ORDER BY startTimeMinutes ASC")
+    @Query("SELECT * FROM lesson_with_student WHERE date = :dateEpoch ORDER BY startTime ASC")
     fun getLessonsByDate(dateEpoch: Long): Flow<List<LessonWithStudentView>>
 
-    @Query("SELECT * FROM lesson_with_student WHERE date >= :startDate AND date <= :endDate ORDER BY date ASC, startTimeMinutes ASC")
+    @Query("SELECT * FROM lesson_with_student WHERE date >= :startDate AND date <= :endDate ORDER BY date ASC, startTime ASC")
     fun getLessonsByDateRange(startDate: Long, endDate: Long): Flow<List<LessonWithStudentView>>
 
     @Query("SELECT * FROM lesson_with_student WHERE paymentStatus = 'PENDING' AND seasonId = :seasonId ORDER BY date DESC")
@@ -42,7 +42,7 @@ interface LessonDao {
         SELECT strftime('%Y-%m', date/1000, 'unixepoch') as month,
                COUNT(*) as lessonCount,
                SUM(CASE WHEN paymentStatus = 'PAID' THEN fee ELSE 0 END) as totalPaid
-        FROM lessons 
+        FROM lessons
         WHERE seasonId = :seasonId
         GROUP BY month
         ORDER BY month DESC
