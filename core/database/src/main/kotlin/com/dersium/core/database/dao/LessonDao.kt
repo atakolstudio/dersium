@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 interface LessonDao {
 
     @Query("SELECT * FROM lesson_with_student WHERE seasonId = :seasonId ORDER BY date DESC, startTime ASC")
+    fun getAllLessons(seasonId: Long): Flow<List<LessonWithStudentView>>
+
     @Query("SELECT * FROM lesson_with_student ORDER BY date DESC, startTime ASC")
     fun getAllLessonsAllSeasons(): Flow<List<LessonWithStudentView>>
-
-    fun getAllLessons(seasonId: Long): Flow<List<LessonWithStudentView>>
 
     @Query("SELECT * FROM lesson_with_student WHERE studentId = :studentId ORDER BY date DESC")
     fun getLessonsByStudent(studentId: Long): Flow<List<LessonWithStudentView>>
