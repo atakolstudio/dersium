@@ -65,89 +65,85 @@ class ReportsViewModel @Inject constructor(
 
     private val _tab = MutableStateFlow(ReportTab.STUDENT)
 
-    val uiState: StateFlow<ReportsUiState> = userPreferencesRepository.userPreferences
-        .flatMapLatest { prefs ->
-            val seasonId = prefs.activeSeasonId
+    val uiState: StateFlow<ReportsUiState> = combine(
+        userPreferencesRepository.userPreferences,
+        lessonRepository.getAllLessonsAllSeasons(),
+        financialRepository.getAllSeasons(),
+        _tab,
+    ) { prefs, allLessons, allSeasons, tab ->
+        val seasonId = prefs.activeSeasonId
+        val lessons  = allLessons.filter { it.seasonId == seasonId }
+        val students = allLessons.map { it.studentId }.distinct()
 
-            // Combine 3 flows first, then combine with rest
-            val baseFlow = combine(
-                studentRepository.getAllStudents(seasonId),
-                lessonRepository.getAllLessons(seasonId),
-                lessonRepository.getAllLessonsAllSeasons(),
-            ) { students, lessons, allLessons -> Triple(students, lessons, allLessons) }
+        val paid     = lessons.filter { it.isPaid }
+        val pending  = lessons.filter { !it.isPaid }
+        val paidAmt  = paid.sumOf { it.fee }
+        val pendingAmt = pending.sumOf { it.fee }
 
-            combine(
-                baseFlow,
-                financialRepository.getAllSeasons(),
-                _tab,
-            ) { (students, lessons, allLessons), allSeasons, tab ->
+        val monthly = lessons
+            .groupBy { "${it.date.year}-${it.date.monthValue.toString().padStart(2,'0')}" }
+            .map { (m, ls) -> MonthlyData(m, ls.size, ls.filter { it.isPaid }.sumOf { it.fee }) }
+            .sortedBy { it.month }
 
-                val paid = lessons.filter { it.isPaid }
-                val pending = lessons.filter { !it.isPaid }
-                val paidAmt = paid.sumOf { it.fee }
-                val pendingAmt = pending.sumOf { it.fee }
-                val avg = if (paid.isNotEmpty()) paidAmt / paid.size else 0.0
-
-                val studentIncomes = students.map { s ->
-                    val sl = lessons.filter { it.studentId == s.id }
-                    StudentIncome(s, sl.sumOf { it.fee }, sl.size, sl.filter { it.isPaid }.sumOf { it.fee })
-                }.sortedByDescending { it.lessonCount }
-
-                val monthly = lessons
-                    .groupBy { "${it.date.year}-${it.date.monthValue.toString().padStart(2, '0')}" }
-                    .map { (m, ls) -> MonthlyData(m, ls.size, ls.filter { it.isPaid }.sumOf { it.fee }) }
-                    .sortedBy { it.month }
-
-                val dayData = DayOfWeek.entries.map { dow ->
-                    val ls = lessons.filter { it.date.dayOfWeek == dow }
-                    DayData(dow.getDisplayName(TextStyle.SHORT, Locale("tr")), dow, ls.size, ls.filter { it.isPaid }.sumOf { it.fee })
-                }
-
-                // Group ALL lessons by seasonId for comparison
-                val lessonsBySeasonId = allLessons.groupBy { it.seasonId }
-
-                val allSeasonStats = allSeasons.map { season ->
-                    val sl = lessonsBySeasonId[season.id] ?: emptyList()
-                    val sp = sl.filter { it.isPaid }.sumOf { it.fee }
-                    val su = sl.filter { !it.isPaid }.sumOf { it.fee }
-                    val rate = if (sp + su > 0) (sp / (sp + su) * 100) else 0.0
-                    SeasonStats(
-                        season = season,
-                        lessonCount = sl.size,
-                        totalIncome = sp + su,
-                        paidAmount = sp,
-                        pendingAmount = su,
-                        studentCount = sl.map { it.studentId }.distinct().size,
-                        avgPerLesson = if (sl.isNotEmpty()) (sp + su) / sl.size else 0.0,
-                        collectionRate = rate,
-                        isActive = season.id == seasonId,
-                    )
-                }.sortedByDescending { it.season.startYear }
-
-                ReportsUiState(
-                    tab = tab,
-                    studentIncomes = studentIncomes,
-                    averagePerLesson = avg,
-                    totalLessons = lessons.size,
-                    totalIncome = paidAmt,
-                    minIncome = paid.minOfOrNull { it.fee } ?: 0.0,
-                    maxIncome = paid.maxOfOrNull { it.fee } ?: 0.0,
-                    monthlyData = monthly,
-                    activeStudents = students.filter { it.isActive },
-                    collectionRate = if (paidAmt + pendingAmt > 0) (paidAmt / (paidAmt + pendingAmt) * 100) else 0.0,
-                    paidLessons = paid.size,
-                    pendingLessons = pending.size,
-                    paidAmount = paidAmt,
-                    pendingAmount = pendingAmt,
-                    dayData = dayData,
-                    bestDay = dayData.maxByOrNull { it.income },
-                    activeSeasonName = allSeasons.find { it.id == seasonId }?.displayName ?: "",
-                    allSeasonStats = allSeasonStats,
-                    currency = prefs.currency,
-                )
-            }
+        val dayData = DayOfWeek.entries.map { dow ->
+            val ls = lessons.filter { it.date.dayOfWeek == dow }
+            DayData(dow.getDisplayName(TextStyle.SHORT, Locale("tr")), dow, ls.size, ls.filter { it.isPaid }.sumOf { it.fee })
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReportsUiState())
+
+        val lessonsBySeasonId = allLessons.groupBy { it.seasonId }
+
+        val allSeasonStats = allSeasons.map { season ->
+            val sl = lessonsBySeasonId[season.id] ?: emptyList()
+            val sp = sl.filter { it.isPaid }.sumOf { it.fee }
+            val su = sl.filter { !it.isPaid }.sumOf { it.fee }
+            val rate = if (sp + su > 0) (sp / (sp + su) * 100) else 0.0
+            SeasonStats(
+                season = season,
+                lessonCount = sl.size,
+                totalIncome = sp + su,
+                paidAmount = sp,
+                pendingAmount = su,
+                studentCount = sl.map { it.studentId }.distinct().size,
+                avgPerLesson = if (sl.isNotEmpty()) (sp + su) / sl.size else 0.0,
+                collectionRate = rate,
+                isActive = season.id == seasonId,
+            )
+        }.sortedByDescending { it.season.startYear }
+
+        val studentIncomes = allSeasons
+            .flatMap { s -> (lessonsBySeasonId[s.id] ?: emptyList()) }
+            .filter { it.seasonId == seasonId }
+            .groupBy { it.studentId }
+            .map { (sid, ls) ->
+                val sName = ls.firstOrNull()?.studentName ?: ""
+                StudentIncome(
+                    Student(id=sid, name=sName, surname="", lessonFee=0.0, paymentType=PaymentType.UPFRONT, seasonId=seasonId),
+                    ls.sumOf{it.fee}, ls.size, ls.filter{it.isPaid}.sumOf{it.fee}
+                )
+            }.sortedByDescending { it.lessonCount }
+
+        ReportsUiState(
+            tab = tab,
+            studentIncomes = studentIncomes,
+            averagePerLesson = if (paid.isNotEmpty()) paidAmt / paid.size else 0.0,
+            totalLessons = lessons.size,
+            totalIncome = paidAmt,
+            minIncome = paid.minOfOrNull { it.fee } ?: 0.0,
+            maxIncome = paid.maxOfOrNull { it.fee } ?: 0.0,
+            monthlyData = monthly,
+            activeStudents = emptyList(),
+            collectionRate = if (paidAmt + pendingAmt > 0) (paidAmt / (paidAmt + pendingAmt) * 100) else 0.0,
+            paidLessons = paid.size,
+            pendingLessons = pending.size,
+            paidAmount = paidAmt,
+            pendingAmount = pendingAmt,
+            dayData = dayData,
+            bestDay = dayData.maxByOrNull { it.income },
+            activeSeasonName = allSeasons.find { it.id == seasonId }?.displayName ?: "",
+            allSeasonStats = allSeasonStats,
+            currency = prefs.currency,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReportsUiState())
 
     fun setTab(t: ReportTab) { _tab.value = t }
 }
