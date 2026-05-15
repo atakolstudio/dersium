@@ -296,7 +296,7 @@ private fun SeasonReport(state: ReportsUiState) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.CalendarMonth, null, tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
-                        Text(state.seasonName, style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                        Text(state.activeSeasonName, style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
                     }
                     StatusChip("İyi", DersiumColors.Income)
                 }
