@@ -39,3 +39,5 @@ include(":feature:financial")
 include(":feature:reports")
 include(":feature:auth")
 include(":feature:settings")
+
+include(":feature:export")

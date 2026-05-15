@@ -14,6 +14,7 @@ sealed class Screen(val route: String) {
 
     // Detail / add screens (no bottom bar)
     data object Settings : Screen("settings")
+    data object Export   : Screen("export")
 
     data object StudentDetail : Screen("student/{studentId}") {
         fun createRoute(studentId: Long) = "student/$studentId"

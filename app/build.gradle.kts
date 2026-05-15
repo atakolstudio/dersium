@@ -88,6 +88,7 @@ dependencies {
     implementation(projects.feature.reports)
     implementation(projects.feature.auth)
     implementation(projects.feature.settings)
+    implementation(projects.feature.export)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.splashscreen)

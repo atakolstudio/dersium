@@ -33,6 +33,7 @@ import com.dersium.core.ui.theme.DersiumColors
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit = {},
+    onExport: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -206,6 +207,20 @@ fun SettingsScreen(
         }
 
         // ── Hakkında ───────────────────────────────────────────────────────────
+        item { SectionHeader("Yedekleme & Raporlar", Icons.Default.Backup) }
+        item {
+            SettingCard {
+                SettingRow(
+                    icon = Icons.Default.Backup,
+                    iconColor = DersiumColors.Income,
+                    title = "Yedekleme ve PDF Raporlar",
+                    subtitle = "Veri yedekleme, geri yukleme ve PDF rapor",
+                    onClick = onExport,
+                    trailing = { Icon(Icons.Default.ChevronRight, null, tint = DersiumColors.TextTertiary) },
+                )
+            }
+        }
+
         item { SectionHeader("Hakkında", Icons.Default.Info) }
         item {
             SettingCard {
