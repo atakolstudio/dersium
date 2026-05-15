@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -289,7 +290,7 @@ private fun DailyReport(state: ReportsUiState) {
 // ── Season ─────────────────────────────────────────────────────────────────────
 @Composable
 private fun SeasonReport(state: ReportsUiState) {
-    ReportCard(title = "Sezon Karşılaştırması", subtitle = "1 sezon", icon = Icons.Default.CompareArrows) {
+    ReportCard(title = "Sezon Karşılaştırması", subtitle = "1 sezon", icon = Icons.AutoMirrored.Filled.CompareArrows) {
         Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = DersiumColors.SurfaceElevated) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
