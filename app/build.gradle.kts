@@ -20,19 +20,29 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
+    signingConfigs {
+        create("debugSigned") {
+            storeFile     = file("debug.keystore")
+            storePassword = "android"
+            keyAlias      = "androiddebugkey"
+            keyPassword   = "android"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig      = signingConfigs.getByName("debugSigned")
+            applicationIdSuffix = ".debug"
+            isDebuggable        = true
+        }
         release {
+            signingConfig     = signingConfigs.getByName("debugSigned")
             isMinifyEnabled   = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("debug")
-        }
-        debug {
-            applicationIdSuffix = ".debug"
-            isDebuggable        = true
         }
     }
 
@@ -58,15 +68,12 @@ android {
     }
 
     packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
 }
 
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-
     implementation(projects.core.common)
     implementation(projects.core.data)
     implementation(projects.core.database)
@@ -81,32 +88,25 @@ dependencies {
     implementation(projects.feature.reports)
     implementation(projects.feature.auth)
     implementation(projects.feature.settings)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.startup)
-
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
-
     implementation(libs.bundles.lifecycle)
     implementation(libs.navigation.compose)
     implementation(libs.hilt.navigation.compose)
-
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-
     implementation(libs.workmanager.ktx)
     implementation(libs.hilt.workmanager)
     ksp(libs.hilt.workmanager.compiler)
-
     implementation(libs.coroutines.android)
     implementation(libs.biometric)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
