@@ -47,7 +47,7 @@ coil          = "3.1.0"
 workmanager   = "2.10.1"
 
 # Biometric
-biometric     = "1.2.0"
+biometric     = "1.1.0"
 crypto        = "1.1.0-alpha06"
 
 # Material
