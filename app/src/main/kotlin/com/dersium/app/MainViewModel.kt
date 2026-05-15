@@ -7,32 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    userPreferencesRepository: UserPreferencesRepository,
-) : ViewModel() {
+data class MainUiState(val startDestination: String? = null, val accentHex: String = "#6366F1")
 
+@HiltViewModel
+class MainViewModel @Inject constructor(repo: UserPreferencesRepository) : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
-
-    val startDestination: StateFlow<String> = userPreferencesRepository.userPreferences
+    val uiState: StateFlow<MainUiState> = repo.userPreferences
         .onEach { isLoading = false }
-        .map { prefs ->
-            when {
-                prefs.isPinEnabled -> "auth"
-                else               -> "home"
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = "home",
-        )
+        .map { prefs -> MainUiState(if (prefs.isPinEnabled) "auth" else "home", prefs.themeAccentColor.hex) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MainUiState())
 }
