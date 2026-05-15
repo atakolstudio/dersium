@@ -188,7 +188,7 @@ private fun HomeHeader(state: HomeUiState, onNavigateToSettings: () -> Unit) {
                     QuickStatChip("${state.studentCount} Öğrenci", Icons.Filled.People)
                     QuickStatChip("${state.todayLessons} Bugün", Icons.Filled.Today)
                     QuickStatChip("${state.recentLessons.size} Son Ders", Icons.Filled.School)
-                    if (state.pendingAmount == 0.0) QuickStatChip("Temiz", Icons.Default.CheckCircle)
+                    
                 }
             }
         }
