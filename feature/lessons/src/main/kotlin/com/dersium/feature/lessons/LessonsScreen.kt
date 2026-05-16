@@ -153,7 +153,19 @@ private fun LessonListItem(lesson: Lesson, currency: String, onMarkPaid: () -> U
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(lesson.fee.formatCurrency(currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-                    StatusChip(if (lesson.isPaid) "✓ Ödendi" else "Bekleyen", if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending)
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(6.dp),
+                        color = (if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending).copy(alpha = 0.15f),
+                        onClick = { if (lesson.isPaid) viewModel.markUnpaid(lesson.id) else viewModel.markPaid(lesson.id) },
+                    ) {
+                        Text(
+                            if (lesson.isPaid) "✓ Ödendi" else "Bekleyen",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
