@@ -34,24 +34,26 @@ object DersiumColors {
     fun applyAccent(hex: String) {
         try {
             val base = Color(android.graphics.Color.parseColor(hex))
-            Primary          = base
-            PrimaryLight     = base.copy(red = (base.red + 0.1f).coerceAtMost(1f), blue = (base.blue + 0.1f).coerceAtMost(1f))
-            PrimaryDark      = base.copy(red = (base.red - 0.1f).coerceAtLeast(0f))
-            PrimaryContainer = base.copy(alpha = 0.18f)
+            Primary           = base
+            PrimaryLight      = base.copy(red = (base.red + 0.12f).coerceAtMost(1f), blue = (base.blue + 0.08f).coerceAtMost(1f))
+            PrimaryDark       = base.copy(red = (base.red - 0.1f).coerceAtLeast(0f))
+            PrimaryContainer  = base.copy(alpha = 0.18f)
         } catch (_: Exception) {}
     }
 }
 
 @Composable
 fun DersiumTheme(accentHex: String = "#6366F1", content: @Composable () -> Unit) {
-    DersiumColors.applyAccent(accentHex)
-    val accent = remember(accentHex) {
-        try { Color(android.graphics.Color.parseColor(accentHex)) } catch (_: Exception) { Color(0xFF6366F1) }
+    val accentColor = remember(accentHex) {
+        try { Color(android.graphics.Color.parseColor(accentHex)) }
+        catch (_: Exception) { Color(0xFF6366F1) }
     }
+    SideEffect { DersiumColors.applyAccent(accentHex) }
+
     MaterialTheme(
         colorScheme = darkColorScheme(
-            primary = accent, onPrimary = Color.White,
-            primaryContainer = accent.copy(alpha = 0.2f),
+            primary = accentColor, onPrimary = Color.White,
+            primaryContainer = accentColor.copy(alpha = 0.2f),
             secondary = DersiumColors.Income, onSecondary = Color.White,
             background = DersiumColors.Background, onBackground = DersiumColors.TextPrimary,
             surface = DersiumColors.Surface, onSurface = DersiumColors.TextPrimary,
@@ -65,16 +67,16 @@ fun DersiumTheme(accentHex: String = "#6366F1", content: @Composable () -> Unit)
 }
 
 val DersiumTypography = Typography(
-    headlineLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp),
-    headlineMedium= TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 28.sp),
-    headlineSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp),
-    titleLarge    = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 22.sp),
-    titleMedium   = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp),
-    titleSmall    = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    bodyLarge     = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp),
-    bodyMedium    = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp),
-    bodySmall     = TextStyle(fontWeight = FontWeight.Normal, fontSize = 12.sp),
-    labelLarge    = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    labelMedium   = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp),
-    labelSmall    = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp),
+    headlineLarge  = TextStyle(fontWeight = FontWeight.Bold,     fontSize = 32.sp),
+    headlineMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 28.sp),
+    headlineSmall  = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp),
+    titleLarge     = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 22.sp),
+    titleMedium    = TextStyle(fontWeight = FontWeight.Medium,   fontSize = 16.sp),
+    titleSmall     = TextStyle(fontWeight = FontWeight.Medium,   fontSize = 14.sp),
+    bodyLarge      = TextStyle(fontWeight = FontWeight.Normal,   fontSize = 16.sp),
+    bodyMedium     = TextStyle(fontWeight = FontWeight.Normal,   fontSize = 14.sp),
+    bodySmall      = TextStyle(fontWeight = FontWeight.Normal,   fontSize = 12.sp),
+    labelLarge     = TextStyle(fontWeight = FontWeight.Medium,   fontSize = 14.sp),
+    labelMedium    = TextStyle(fontWeight = FontWeight.Medium,   fontSize = 12.sp),
+    labelSmall     = TextStyle(fontWeight = FontWeight.Medium,   fontSize = 11.sp),
 )

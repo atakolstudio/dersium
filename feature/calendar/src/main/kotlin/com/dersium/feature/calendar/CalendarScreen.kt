@@ -65,7 +65,7 @@ fun CalendarScreen(
 
                 // Stats
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatBadge("${state.lessonsOnSelectedDay.size} ders", Icons.Default.School)
+                    StatBadge("${state.lessonsOnSelectedDay.sortedBy { it.startTime }.size} ders", Icons.Default.School)
                     StatBadge("${state.totalMinutes} dk toplam", Icons.Default.AccessTime)
                     StatBadge("${state.studentCount} öğrenci", Icons.Default.People)
                 }
