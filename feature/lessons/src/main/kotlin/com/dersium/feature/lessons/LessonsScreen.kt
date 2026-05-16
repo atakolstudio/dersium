@@ -114,7 +114,7 @@ fun LessonsScreen(
                                         Text(lesson.fee.formatCurrency(state.currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
                                         IconButton(onClick = { viewModel.deleteLesson(lesson) }, modifier = Modifier.size(24.dp)) { Icon(Icons.Default.Delete, null, tint = DersiumColors.Expense, modifier = Modifier.size(14.dp)) }
                                     }
-                                    Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp), color = if (lesson.isPaid) DersiumColors.IncomeContainer else DersiumColors.PrimaryContainer, onClick = { if (!lesson.isPaid) viewModel.markPaid(lesson.id) }) {
+                                    Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp), color = if (lesson.isPaid) DersiumColors.IncomeContainer else DersiumColors.PrimaryContainer, onClick = { if (lesson.isPaid) viewModel.markUnpaid(lesson.id) else viewModel.markPaid(lesson.id) }) {
                                         Text(if (lesson.isPaid) "✓ Ödendi" else "Tahsil Et", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = if (lesson.isPaid) DersiumColors.Income else DersiumColors.PrimaryLight, fontWeight = FontWeight.SemiBold)
                                     }
                                 }

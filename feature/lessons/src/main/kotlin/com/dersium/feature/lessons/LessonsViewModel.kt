@@ -69,6 +69,7 @@ class LessonsViewModel @Inject constructor(
 
     fun setFilter(f: LessonFilter)       { _filter.value = f }
     fun onSearchQueryChange(q: String)   { _searchQuery.value = q }
-    fun markPaid(id: Long)               { viewModelScope.launch { lessonRepository.updatePaymentStatus(id, PaymentStatus.PAID) } }
+    fun markPaid(id: Long)   { viewModelScope.launch { lessonRepository.updatePaymentStatus(id, PaymentStatus.PAID) } }
+    fun markUnpaid(id: Long) { viewModelScope.launch { lessonRepository.updatePaymentStatus(id, PaymentStatus.PENDING) } }
     fun deleteLesson(lesson: Lesson)     { viewModelScope.launch { lessonRepository.deleteLesson(lesson) } }
 }
