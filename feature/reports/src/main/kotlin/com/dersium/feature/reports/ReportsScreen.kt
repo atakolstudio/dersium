@@ -290,28 +290,55 @@ private fun DailyReport(state: ReportsUiState) {
 // ── Season ─────────────────────────────────────────────────────────────────────
 @Composable
 private fun SeasonReport(state: ReportsUiState) {
-    ReportCard(title = "Sezon Karşılaştırması", subtitle = "1 sezon", icon = Icons.AutoMirrored.Filled.CompareArrows) {
-        Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = DersiumColors.SurfaceElevated) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.CalendarMonth, null, tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
-                        Text(state.activeSeasonName, style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+    ReportCard(
+        title = "Sezon Karşılaştırması",
+        subtitle = "${state.allSeasonStats.size} sezon",
+        icon = Icons.AutoMirrored.Filled.CompareArrows,
+    ) {
+        if (state.allSeasonStats.isEmpty()) {
+            Text("Henüz sezon verisi yok", style = MaterialTheme.typography.bodyMedium, color = DersiumColors.TextSecondary)
+        } else {
+            state.allSeasonStats.forEach { ss ->
+                val rateColor = when {
+                    ss.collectionRate >= 90 -> DersiumColors.Income
+                    ss.collectionRate >= 60 -> DersiumColors.Pending
+                    else -> DersiumColors.Expense
+                }
+                val rateLabel = when {
+                    ss.collectionRate >= 90 -> "İyi"
+                    ss.collectionRate >= 60 -> "Orta"
+                    else -> "Düşük"
+                }
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (ss.isActive) DersiumColors.PrimaryContainer else DersiumColors.SurfaceElevated,
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(Icons.Default.CalendarMonth, null, tint = if (ss.isActive) DersiumColors.PrimaryLight else DersiumColors.TextSecondary, modifier = Modifier.size(20.dp))
+                                Column {
+                                    Text(ss.season.displayName, style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                                    if (ss.isActive) Text("Aktif", style = MaterialTheme.typography.labelSmall, color = DersiumColors.PrimaryLight)
+                                }
+                            }
+                            StatusChip(rateLabel, rateColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                            Text("Tahsilat Oranı", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+                            Text("%${ss.collectionRate.toInt()}", style = MaterialTheme.typography.bodySmall, color = rateColor, fontWeight = FontWeight.Bold)
+                        }
+                        LinearProgressIndicator(progress = { (ss.collectionRate / 100f).toFloat() }, modifier = Modifier.fillMaxWidth(), color = rateColor, trackColor = DersiumColors.Outline)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            StatusChip(ss.totalIncome.formatCurrency(state.currency) + " Toplam", DersiumColors.Primary)
+                            StatusChip(ss.paidAmount.formatCurrency(state.currency) + " Ödenen", DersiumColors.Income)
+                            if (ss.pendingAmount > 0) StatusChip(ss.pendingAmount.formatCurrency(state.currency) + " Bekleyen", DersiumColors.Pending)
+                        }
+                        Text("${ss.lessonCount} ders · ${ss.studentCount} öğrenci · Ort. ${ss.avgPerLesson.formatCurrency(state.currency)}/ders", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
                     }
-                    StatusChip("İyi", DersiumColors.Income)
                 }
-                Text("Tahsilat Oranı", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Text("Tahsilat Oranı", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                    Text("%${state.collectionRate.toInt()}", style = MaterialTheme.typography.bodySmall, color = DersiumColors.Income)
-                }
-                LinearProgressIndicator(progress = { (state.collectionRate / 100f).toFloat() }, modifier = Modifier.fillMaxWidth(), color = DersiumColors.Income, trackColor = DersiumColors.Outline)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatusChip(state.totalIncome.formatCurrency(state.currency) + " Toplam", DersiumColors.Primary)
-                    StatusChip(state.paidAmount.formatCurrency(state.currency) + " Ödenen", DersiumColors.Income)
-                    StatusChip(state.pendingAmount.formatCurrency(state.currency) + " Bekleyen", DersiumColors.Pending)
-                }
-                Text("${state.totalLessons} ders · ${state.studentIncomes.size} öğrenci · Ort. ${state.averagePerLesson.formatCurrency(state.currency)}/ders", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
