@@ -169,8 +169,18 @@ private fun LessonListItem(lesson: Lesson, currency: String, onToggle: () -> Uni
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(lesson.fee.fmt(currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-                    Surface(shape = RoundedCornerShape(6.dp), color = (if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending).copy(alpha = 0.15f), onClick = onToggle) {
-                        Text(if (lesson.isPaid) "✓ Ödendi" else "Bekleyen", modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp), style = MaterialTheme.typography.labelSmall, color = if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending, fontWeight = FontWeight.SemiBold)
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = if (lesson.isPaid) DersiumColors.IncomeContainer else DersiumColors.PendingContainer,
+                        onClick = onToggle,
+                    ) {
+                        Text(
+                            if (lesson.isPaid) "✓ Ödendi" else "Bekleyen",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (lesson.isPaid) DersiumColors.Income else DersiumColors.Pending,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
             }
