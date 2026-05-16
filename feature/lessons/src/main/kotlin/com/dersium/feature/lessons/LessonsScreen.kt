@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import java.util.Locale
 enum class LessonsViewMode { LIST, GRID }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun LessonsScreen(
     onAddLesson: () -> Unit,
     onEditLesson: (Long) -> Unit,
@@ -131,6 +133,7 @@ fun LessonsScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun SummaryBox(value: String, label: String, bgColor: Color, valColor: Color, modifier: Modifier = Modifier) {
     Surface(modifier = modifier, shape = RoundedCornerShape(12.dp), color = bgColor) {
         Column(modifier = Modifier.padding(10.dp)) {
@@ -141,6 +144,7 @@ private fun SummaryBox(value: String, label: String, bgColor: Color, valColor: C
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun LessonListItem(lesson: Lesson, currency: String, onMarkPaid: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, modifier: Modifier = Modifier) {
     val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr"))
     Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = DersiumColors.SurfaceVariant) {
