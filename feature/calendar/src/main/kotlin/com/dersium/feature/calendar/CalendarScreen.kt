@@ -3,7 +3,6 @@ package com.dersium.feature.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -16,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,30 +40,27 @@ fun CalendarScreen(
 
     Box(modifier = Modifier.fillMaxSize().background(DersiumColors.Background)) {
         Column(Modifier.fillMaxSize()) {
-            // Header
             Column(modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp)) {
                 Text("Haftalık Program", style = MaterialTheme.typography.headlineMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
                 Text("Ders takvimi", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
             }
 
-            // Tabs
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = DersiumColors.Background,
                 contentColor = DersiumColors.Primary,
-                indicator = { tabPositions ->
-                    if (selectedTab < tabPositions.size) {
-                        TabRowDefaults.SecondaryIndicator(modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]), color = DersiumColors.Primary)
-                    }
-                },
             ) {
                 tabs.forEachIndexed { i, title ->
-                    Tab(selected = selectedTab == i, onClick = { selectedTab = i }, text = { Text(title, color = if (selectedTab == i) DersiumColors.Primary else DersiumColors.TextSecondary) })
+                    Tab(
+                        selected = selectedTab == i,
+                        onClick = { selectedTab = i },
+                        text = { Text(title, color = if (selectedTab == i) DersiumColors.Primary else DersiumColors.TextSecondary) },
+                    )
                 }
             }
 
             when (selectedTab) {
-                0 -> CalendarTab(state, viewModel, onAddLesson)
+                0 -> CalendarTab(state, viewModel)
                 1 -> CapacityTab(state)
                 2 -> StudentCalendarTab(state)
             }
@@ -73,12 +70,11 @@ fun CalendarScreen(
 }
 
 @Composable
-private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel, onAddLesson: () -> Unit) {
+private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
     val weekDays = (0..6).map { state.weekStart.plusDays(it.toLong()) }
     val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 100.dp)) {
-        // Week navigator
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { viewModel.previousWeek() }) { Icon(Icons.Default.ChevronLeft, null, tint = DersiumColors.TextPrimary) }
@@ -87,8 +83,6 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel, on
                 IconButton(onClick = { viewModel.nextWeek() }) { Icon(Icons.Default.ChevronRight, null, tint = DersiumColors.TextPrimary) }
             }
         }
-
-        // Day selector
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 weekDays.forEach { day ->
@@ -107,8 +101,6 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel, on
                 }
             }
         }
-
-        // Week stats
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatChip("${state.totalLessonsThisWeek} ders", Icons.Default.School, Modifier.weight(1f))
@@ -116,11 +108,9 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel, on
                 StatChip("${state.studentsThisWeek} öğrenci", Icons.Default.People, Modifier.weight(1f))
             }
         }
-
         item {
             Text("Günlük Program", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
         }
-
         if (state.lessonsOnSelectedDay.isEmpty()) {
             item { DersiumEmptyState(icon = Icons.Default.EventAvailable, title = "Bu gün ders yok", subtitle = "Ders eklemek için + butonuna basın") }
         } else {
@@ -139,8 +129,6 @@ private fun CapacityTab(state: CalendarUiState) {
             item { DersiumEmptyState(icon = Icons.Default.BarChart, title = "Kapasite bilgisi yok", subtitle = "Öğrencilere ders programı ekleyin") }
             return@LazyColumn
         }
-
-        // Kapasite özeti
         item {
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = if (cap.canTakeNewStudent) DersiumColors.IncomeContainer else DersiumColors.ExpenseContainer) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -158,19 +146,11 @@ private fun CapacityTab(state: CalendarUiState) {
                             Text("Boş", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
                         }
                     }
-                    LinearProgressIndicator(
-                        progress = { (cap.busyHours / cap.totalHours).toFloat().coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = if (cap.canTakeNewStudent) DersiumColors.Pending else DersiumColors.Expense,
-                        trackColor = DersiumColors.Outline,
-                    )
+                    LinearProgressIndicator(progress = { (cap.busyHours / cap.totalHours).toFloat().coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth(), color = if (cap.canTakeNewStudent) DersiumColors.Pending else DersiumColors.Expense, trackColor = DersiumColors.Outline)
                 }
             }
         }
-
-        // Haftalık program
         item { Text("Haftalık Program", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold) }
-
         if (cap.slots.isEmpty()) {
             item { Text("Öğrencilere ders programı eklenmemiş.", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }
         } else {
@@ -185,7 +165,7 @@ private fun CapacityTab(state: CalendarUiState) {
                         } else {
                             daySlots.forEach { slot ->
                                 Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(android.graphics.Color.parseColor(slot.studentColor))))
+                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(try { Color(android.graphics.Color.parseColor(slot.studentColor)) } catch (_: Exception) { DersiumColors.Primary }))
                                     Text("${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')} · ${slot.durationMinutes}dk", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
                                     Text(slot.studentName, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Medium)
                                 }
@@ -195,8 +175,6 @@ private fun CapacityTab(state: CalendarUiState) {
                 }
             }
         }
-
-        // Boş günler
         if (cap.freeSlots.isNotEmpty()) {
             item { Text("Boş Günler", style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold) }
             items(cap.freeSlots) { (dow, desc) ->
@@ -224,12 +202,12 @@ private fun StudentCalendarTab(state: CalendarUiState) {
             val lessons = (state.studentLessons[student.id] ?: emptyList()).sortedByDescending { it.date }
             val totalLessons = lessons.size
             val attendedWeeks = lessons.map { it.date.with(DayOfWeek.MONDAY) }.distinct().size
-            val scheduleWeeks = if (student.scheduleSlots.isNotEmpty()) {
-                val firstLesson = lessons.minByOrNull { it.date }?.date ?: LocalDate.now()
-                val weeksSince = java.time.temporal.ChronoUnit.WEEKS.between(firstLesson.with(DayOfWeek.MONDAY), LocalDate.now().with(DayOfWeek.MONDAY)).toInt() + 1
-                weeksSince
+            val firstLesson = lessons.minByOrNull { it.date }?.date
+            val scheduleWeeks = if (firstLesson != null && student.scheduleSlots.isNotEmpty()) {
+                (java.time.temporal.ChronoUnit.WEEKS.between(firstLesson.with(DayOfWeek.MONDAY), LocalDate.now().with(DayOfWeek.MONDAY)).toInt() + 1).coerceAtLeast(1)
             } else 0
             val regularity = if (scheduleWeeks > 0) (attendedWeeks * 100 / scheduleWeeks).coerceAtMost(100) else 0
+            val regularityColor = if (regularity >= 80) DersiumColors.Income else if (regularity >= 50) DersiumColors.Pending else DersiumColors.Expense
 
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
                 Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -237,16 +215,26 @@ private fun StudentCalendarTab(state: CalendarUiState) {
                         DersiumAvatar(initials = student.initials, colorHex = student.avatarColor, size = 40)
                         Column(modifier = Modifier.weight(1f)) {
                             Text(student.fullName, style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-                            Text("${student.scheduleSlots.joinToString(", ") { slot -> slot.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr")) + " " + slot.startTime.hour.toString().padStart(2,'0') + ":" + slot.startTime.minute.toString().padStart(2,'0') }}", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+                            if (student.scheduleSlots.isNotEmpty()) {
+                                Text(
+                                    student.scheduleSlots.joinToString(", ") { slot ->
+                                        "${slot.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr"))} ${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')}"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary,
+                                )
+                            } else {
+                                Text("Program eklenmemiş", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextTertiary)
+                            }
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("$totalLessons ders", style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary)
-                            Text("%$regularity", style = MaterialTheme.typography.titleSmall, color = if (regularity >= 80) DersiumColors.Income else if (regularity >= 50) DersiumColors.Pending else DersiumColors.Expense, fontWeight = FontWeight.Bold)
+                            Text("%$regularity", style = MaterialTheme.typography.titleSmall, color = regularityColor, fontWeight = FontWeight.Bold)
                         }
                     }
-                    LinearProgressIndicator(progress = { regularity / 100f }, modifier = Modifier.fillMaxWidth(), color = if (regularity >= 80) DersiumColors.Income else if (regularity >= 50) DersiumColors.Pending else DersiumColors.Expense, trackColor = DersiumColors.Outline)
-                    Text("Düzenlilik: %$regularity", style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary)
-                    // Son 4 ders
+                    if (scheduleWeeks > 0) {
+                        LinearProgressIndicator(progress = { regularity / 100f }, modifier = Modifier.fillMaxWidth(), color = regularityColor, trackColor = DersiumColors.Outline)
+                        Text("Düzenlilik: %$regularity", style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary)
+                    }
                     if (lessons.isNotEmpty()) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             lessons.take(4).forEach { lesson ->
@@ -272,7 +260,7 @@ private fun LessonTimeCard(lesson: Lesson, timeFmt: DateTimeFormatter, modifier:
                 Box(modifier = Modifier.width(1.dp).height(20.dp).background(DersiumColors.Outline))
                 Text(endTime.format(timeFmt), style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextTertiary)
             }
-            Box(modifier = Modifier.width(3.dp).height(50.dp).clip(RoundedCornerShape(2.dp)).background(Color(android.graphics.Color.parseColor(lesson.studentAvatarColor))))
+            Box(modifier = Modifier.width(3.dp).height(50.dp).clip(RoundedCornerShape(2.dp)).background(try { Color(android.graphics.Color.parseColor(lesson.studentAvatarColor)) } catch (_: Exception) { DersiumColors.Primary }))
             Column(modifier = Modifier.weight(1f)) {
                 Text(lesson.studentName, style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                 if (lesson.topic.isNotEmpty()) Text(lesson.topic, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
@@ -286,7 +274,7 @@ private fun LessonTimeCard(lesson: Lesson, timeFmt: DateTimeFormatter, modifier:
 }
 
 @Composable
-private fun StatChip(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier) {
+private fun StatChip(text: String, icon: ImageVector, modifier: Modifier = Modifier) {
     Surface(modifier = modifier, shape = RoundedCornerShape(10.dp), color = DersiumColors.SurfaceVariant) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = DersiumColors.Primary, modifier = Modifier.size(14.dp))
