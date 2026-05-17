@@ -31,6 +31,7 @@ data class StudentEntity(
     val isActive: Boolean = true,
     val seasonId: Long = 1L,
     val createdAt: Long = System.currentTimeMillis(),
+    val scheduleSlots: String = "",
 )
 
 @Entity(tableName = "lessons", indices = [Index("studentId"), Index("date")])

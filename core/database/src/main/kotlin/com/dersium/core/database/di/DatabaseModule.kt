@@ -19,7 +19,11 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): DersiumDatabase =
         Room.databaseBuilder(context, DersiumDatabase::class.java, "dersium.db")
-            .addMigrations(DersiumDatabase.MIGRATION_2_3, DersiumDatabase.MIGRATION_3_4)
+            .addMigrations(
+                DersiumDatabase.MIGRATION_2_3,
+                DersiumDatabase.MIGRATION_3_4,
+                DersiumDatabase.MIGRATION_4_5,
+            )
             .addCallback(object : androidx.room.RoomDatabase.Callback() {
                 override fun onCreate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                     super.onCreate(db)

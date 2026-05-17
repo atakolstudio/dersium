@@ -1,6 +1,14 @@
 package com.dersium.core.domain.model
 
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
+
+data class ScheduleSlot(
+    val dayOfWeek: DayOfWeek,
+    val startTime: LocalTime,
+    val durationMinutes: Int = 60,
+)
 
 data class Student(
     val id: Long = 0,
@@ -22,6 +30,7 @@ data class Student(
     val startDate: LocalDate = LocalDate.now(),
     val seasonId: Long = 1L,
     val createdAt: Long = System.currentTimeMillis(),
+    val scheduleSlots: List<ScheduleSlot> = emptyList(),
 ) {
     val fullName: String get() = "$name $surname".trim()
     val initials: String get() = buildString {

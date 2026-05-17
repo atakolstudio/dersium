@@ -9,7 +9,7 @@ import com.dersium.core.database.entity.*
 @Database(
     entities = [SeasonEntity::class, StudentEntity::class, LessonEntity::class, ExtraIncomeEntity::class, ExpenseEntity::class],
     views = [LessonWithStudentView::class],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class DersiumDatabase : RoomDatabase() {
@@ -24,16 +24,18 @@ abstract class DersiumDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE students ADD COLUMN lessonCountForPayment INTEGER NOT NULL DEFAULT 1")
             }
         }
-
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE students ADD COLUMN motherName TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE students ADD COLUMN motherPhone TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE students ADD COLUMN fatherName TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE students ADD COLUMN fatherPhone TEXT NOT NULL DEFAULT ''")
-                try {
-                    db.execSQL("UPDATE students SET motherName = parentName, motherPhone = parentPhone")
-                } catch (_: Exception) {}
+                try { db.execSQL("UPDATE students SET motherName = parentName, motherPhone = parentPhone") } catch (_: Exception) {}
+            }
+        }
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE students ADD COLUMN scheduleSlots TEXT NOT NULL DEFAULT ''")
             }
         }
     }

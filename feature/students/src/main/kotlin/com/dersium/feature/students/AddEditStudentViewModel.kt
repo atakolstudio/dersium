@@ -3,6 +3,7 @@ package com.dersium.feature.students
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.PaymentType
+import com.dersium.core.domain.model.ScheduleSlot
 import com.dersium.core.domain.model.Student
 import com.dersium.core.domain.repository.StudentRepository
 import com.dersium.core.domain.repository.UserPreferencesRepository
@@ -33,6 +34,7 @@ data class AddEditStudentUiState(
     val nameError: String? = null,
     val feeError: String? = null,
     val activeSeasonId: Long = 1L,
+    val scheduleSlots: List<ScheduleSlot> = emptyList(),
 )
 
 @HiltViewModel
@@ -67,7 +69,9 @@ class AddEditStudentViewModel @Inject constructor(
                         phone = s.phone, lessonFee = s.lessonFee.toInt().toString(),
                         paymentType = s.paymentType,
                         lessonCountForPayment = s.lessonCountForPayment.toString(),
-                        notes = s.notes, avatarColor = s.avatarColor, isActive = s.isActive,
+                        notes = s.notes, avatarColor = s.avatarColor,
+                        isActive = s.isActive,
+                        scheduleSlots = s.scheduleSlots,
                     )
                 }
             }
@@ -88,6 +92,20 @@ class AddEditStudentViewModel @Inject constructor(
     fun onLessonCountChange(v: String) = _state.update { it.copy(lessonCountForPayment = v) }
     fun onNotesChange(v: String) = _state.update { it.copy(notes = v) }
     fun onIsActiveChange(v: Boolean) = _state.update { it.copy(isActive = v) }
+    fun onScheduleSlotsChange(slots: List<ScheduleSlot>) = _state.update { it.copy(scheduleSlots = slots) }
+
+    fun addSlot(slot: ScheduleSlot) {
+        val current = _state.value.scheduleSlots.toMutableList()
+        // Remove existing slot for same day
+        current.removeAll { it.dayOfWeek == slot.dayOfWeek }
+        current.add(slot)
+        current.sortBy { it.dayOfWeek }
+        _state.update { it.copy(scheduleSlots = current) }
+    }
+
+    fun removeSlot(slot: ScheduleSlot) {
+        _state.update { it.copy(scheduleSlots = it.scheduleSlots.filter { s -> s != slot }) }
+    }
 
     fun save() {
         val s = _state.value
@@ -108,6 +126,7 @@ class AddEditStudentViewModel @Inject constructor(
                 lessonCountForPayment = s.lessonCountForPayment.toIntOrNull() ?: 4,
                 notes = s.notes.trim(), avatarColor = s.avatarColor,
                 isActive = s.isActive, seasonId = s.activeSeasonId,
+                scheduleSlots = s.scheduleSlots,
             )
             if (s.isEditMode) studentRepository.updateStudent(student)
             else studentRepository.insertStudent(student)

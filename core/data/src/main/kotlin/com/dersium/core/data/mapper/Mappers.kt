@@ -17,6 +17,7 @@ fun StudentEntity.toDomain() = Student(
     fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
     seasonId = seasonId, createdAt = createdAt,
+    scheduleSlots = ScheduleSerializer.deserialize(scheduleSlots),
 )
 
 fun Student.toEntity() = StudentEntity(
@@ -29,6 +30,7 @@ fun Student.toEntity() = StudentEntity(
     fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
     seasonId = seasonId, createdAt = createdAt,
+    scheduleSlots = ScheduleSerializer.serialize(scheduleSlots),
 )
 
 fun Long.toLocalDate(): LocalDate =
@@ -38,7 +40,7 @@ fun LocalDate.toEpochMilli(): Long =
 fun Int.toLocalTime(): LocalTime = LocalTime.of(this / 60, this % 60)
 fun LocalTime.toMinutes(): Int = hour * 60 + minute
 
-fun com.dersium.core.database.entity.LessonWithStudentView.toDomain() = Lesson(
+fun LessonWithStudentView.toDomain() = Lesson(
     id = id, studentId = studentId,
     studentName = studentName, studentAvatarColor = studentAvatarColor,
     date = date.toLocalDate(), startTime = startTime.toLocalTime(),
