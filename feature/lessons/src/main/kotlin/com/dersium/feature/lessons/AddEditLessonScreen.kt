@@ -34,7 +34,7 @@ fun AddEditLessonScreen(
 
     LaunchedEffect(lessonId, preSelectedStudentId) {
         if (lessonId != null) viewModel.loadLesson(lessonId)
-        if (preSelectedStudentId != null) viewModel.preSelectStudent(preSelectedStudentId)
+        if (preSelectedStudentId != null) viewModel.onStudentSelected(preSelectedStudentId)
     }
     LaunchedEffect(state.isSaved) { if (state.isSaved) onBack() }
 
@@ -77,7 +77,7 @@ fun AddEditLessonScreen(
             text = { TimePicker(state = timePickerState) },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.onTimeChange(LocalTime.of(timePickerState.hour, timePickerState.minute))
+                    viewModel.onStartTimeChange(LocalTime.of(timePickerState.hour, timePickerState.minute))
                     showTimePicker = false
                 }) { Text("Tamam", color = DersiumColors.Primary) }
             },
@@ -112,7 +112,7 @@ fun AddEditLessonScreen(
                     label = { Text("Öğrenci") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    isError = state.studentError != null,
+                    isError = state.selectedStudentId == 0L && false,
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = DersiumColors.Primary, unfocusedBorderColor = DersiumColors.Outline,
@@ -125,7 +125,7 @@ fun AddEditLessonScreen(
                     }
                 }
             }
-            if (state.studentError != null) Text(state.studentError!!, style = MaterialTheme.typography.labelSmall, color = DersiumColors.Expense)
+            
 
             HorizontalDivider(color = DersiumColors.Outline)
 
