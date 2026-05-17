@@ -201,12 +201,14 @@ private fun StudentCalendarTab(state: CalendarUiState) {
         items(state.students) { student ->
             val lessons = (state.studentLessons[student.id] ?: emptyList()).sortedByDescending { it.date }
             val totalLessons = lessons.size
-            val attendedWeeks = lessons.map { it.date.with(DayOfWeek.MONDAY) }.distinct().size
             val firstLesson = lessons.minByOrNull { it.date }?.date
-            val scheduleWeeks = if (firstLesson != null && student.scheduleSlots.isNotEmpty()) {
+            // Beklenen ders = geçen hafta sayısı × haftadaki slot sayısı
+            val slotsPerWeek = student.scheduleSlots.size.coerceAtLeast(1)
+            val scheduleWeeks = if (firstLesson != null) {
                 (java.time.temporal.ChronoUnit.WEEKS.between(firstLesson.with(DayOfWeek.MONDAY), LocalDate.now().with(DayOfWeek.MONDAY)).toInt() + 1).coerceAtLeast(1)
             } else 0
-            val regularity = if (scheduleWeeks > 0) (attendedWeeks * 100 / scheduleWeeks).coerceAtMost(100) else 0
+            val expectedLessons = scheduleWeeks * slotsPerWeek
+            val regularity = if (expectedLessons > 0) (totalLessons * 100 / expectedLessons).coerceAtMost(100) else 0
             val regularityColor = if (regularity >= 80) DersiumColors.Income else if (regularity >= 50) DersiumColors.Pending else DersiumColors.Expense
 
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
