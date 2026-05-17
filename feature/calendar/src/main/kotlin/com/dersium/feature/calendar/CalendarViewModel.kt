@@ -127,6 +127,6 @@ class CalendarViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarUiState())
 
     fun selectDate(date: LocalDate) { _selectedDate.value = date }
-    fun previousWeek() { _selectedDate.update { it.minusWeeks(1) } }
-    fun nextWeek() { _selectedDate.update { it.plusWeeks(1) } }
+    fun previousWeek() { _selectedDate.value = _selectedDate.value.minusWeeks(1) }
+    fun nextWeek() { _selectedDate.value = _selectedDate.value.plusWeeks(1) }
 }
