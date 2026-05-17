@@ -17,8 +17,10 @@ data class AddEditStudentUiState(
     val surname: String = "",
     val school: String = "",
     val grade: String = "",
-    val parentName: String = "",
-    val parentPhone: String = "",
+    val motherName: String = "",
+    val motherPhone: String = "",
+    val fatherName: String = "",
+    val fatherPhone: String = "",
     val phone: String = "",
     val lessonFee: String = "",
     val paymentType: PaymentType = PaymentType.UPFRONT,
@@ -60,7 +62,8 @@ class AddEditStudentViewModel @Inject constructor(
                         isEditMode = true,
                         name = s.name, surname = s.surname,
                         school = s.school, grade = s.grade,
-                        parentName = s.parentName, parentPhone = s.parentPhone,
+                        motherName = s.motherName, motherPhone = s.motherPhone,
+                        fatherName = s.fatherName, fatherPhone = s.fatherPhone,
                         phone = s.phone, lessonFee = s.lessonFee.toInt().toString(),
                         paymentType = s.paymentType,
                         lessonCountForPayment = s.lessonCountForPayment.toString(),
@@ -75,8 +78,10 @@ class AddEditStudentViewModel @Inject constructor(
     fun onSurnameChange(v: String) = _state.update { it.copy(surname = v) }
     fun onSchoolChange(v: String) = _state.update { it.copy(school = v) }
     fun onGradeChange(v: String) = _state.update { it.copy(grade = v) }
-    fun onParentNameChange(v: String) = _state.update { it.copy(parentName = v) }
-    fun onParentPhoneChange(v: String) = _state.update { it.copy(parentPhone = v) }
+    fun onMotherNameChange(v: String) = _state.update { it.copy(motherName = v) }
+    fun onMotherPhoneChange(v: String) = _state.update { it.copy(motherPhone = v) }
+    fun onFatherNameChange(v: String) = _state.update { it.copy(fatherName = v) }
+    fun onFatherPhoneChange(v: String) = _state.update { it.copy(fatherPhone = v) }
     fun onPhoneChange(v: String) = _state.update { it.copy(phone = v) }
     fun onLessonFeeChange(v: String) = _state.update { it.copy(lessonFee = v, feeError = null) }
     fun onPaymentTypeChange(v: PaymentType) = _state.update { it.copy(paymentType = v) }
@@ -91,13 +96,13 @@ class AddEditStudentViewModel @Inject constructor(
         val fee = s.lessonFee.toDoubleOrNull()
         if (fee == null || fee <= 0) { _state.update { it.copy(feeError = "Geçerli bir ücret girin") }; hasError = true }
         if (hasError) return
-
         viewModelScope.launch {
             val student = Student(
                 id = if (s.isEditMode) editingId else 0L,
                 name = s.name.trim(), surname = s.surname.trim(),
                 school = s.school.trim(), grade = s.grade.trim(),
-                parentName = s.parentName.trim(), parentPhone = s.parentPhone.trim(),
+                motherName = s.motherName.trim(), motherPhone = s.motherPhone.trim(),
+                fatherName = s.fatherName.trim(), fatherPhone = s.fatherPhone.trim(),
                 phone = s.phone.trim(), lessonFee = fee!!,
                 paymentType = s.paymentType,
                 lessonCountForPayment = s.lessonCountForPayment.toIntOrNull() ?: 4,

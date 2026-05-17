@@ -9,11 +9,13 @@ data class Student(
     val avatarColor: String = "#6366F1",
     val lessonFee: Double,
     val paymentType: PaymentType,
-    val lessonCountForPayment: Int = 1, // "X ders sonrası" için
+    val lessonCountForPayment: Int = 1,
     val school: String = "",
     val grade: String = "",
-    val parentName: String = "",
-    val parentPhone: String = "",
+    val motherName: String = "",
+    val motherPhone: String = "",
+    val fatherName: String = "",
+    val fatherPhone: String = "",
     val phone: String = "",
     val notes: String = "",
     val isActive: Boolean = true,
@@ -26,6 +28,8 @@ data class Student(
         name.firstOrNull()?.let { append(it.uppercaseChar()) }
         surname.firstOrNull()?.let { append(it.uppercaseChar()) }
     }
+    val parentName: String get() = motherName.ifEmpty { fatherName }
+    val parentPhone: String get() = motherPhone.ifEmpty { fatherPhone }
 }
 
 enum class PaymentType(val displayName: String) {
@@ -33,8 +37,5 @@ enum class PaymentType(val displayName: String) {
     AFTER_LESSON("Ders Sonrası"),
     AFTER_CERTAIN_LESSONS("Belirli Ders Sonrası"),
     MONTHLY("Aylık Ödeme");
-
-    companion object {
-        fun fromName(name: String) = entries.find { it.name == name } ?: UPFRONT
-    }
+    companion object { fun fromName(name: String) = entries.find { it.name == name } ?: UPFRONT }
 }

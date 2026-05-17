@@ -7,14 +7,14 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-// ── Student ───────────────────────────────────────────────────────────────────
 fun StudentEntity.toDomain() = Student(
     id = id, name = name, surname = surname,
     avatarColor = avatarColor, lessonFee = lessonFee,
     paymentType = PaymentType.fromName(paymentType),
     lessonCountForPayment = lessonCountForPayment,
     school = school, grade = grade,
-    parentName = parentName, parentPhone = parentPhone,
+    motherName = motherName, motherPhone = motherPhone,
+    fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
     seasonId = seasonId, createdAt = createdAt,
 )
@@ -25,22 +25,19 @@ fun Student.toEntity() = StudentEntity(
     paymentType = paymentType.name,
     lessonCountForPayment = lessonCountForPayment,
     school = school, grade = grade,
-    parentName = parentName, parentPhone = parentPhone,
+    motherName = motherName, motherPhone = motherPhone,
+    fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
     seasonId = seasonId, createdAt = createdAt,
 )
 
-// ── Lesson helpers ─────────────────────────────────────────────────────────────
 fun Long.toLocalDate(): LocalDate =
     Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
-
 fun LocalDate.toEpochMilli(): Long =
     atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
 fun Int.toLocalTime(): LocalTime = LocalTime.of(this / 60, this % 60)
 fun LocalTime.toMinutes(): Int = hour * 60 + minute
 
-// ── LessonWithStudentView ─────────────────────────────────────────────────────
 fun com.dersium.core.database.entity.LessonWithStudentView.toDomain() = Lesson(
     id = id, studentId = studentId,
     studentName = studentName, studentAvatarColor = studentAvatarColor,
@@ -60,12 +57,10 @@ fun Lesson.toEntity() = LessonEntity(
     seasonId = seasonId,
 )
 
-// ── Financial ─────────────────────────────────────────────────────────────────
 fun ExtraIncomeEntity.toDomain() = ExtraIncome(
     id = id, title = title, amount = amount, notes = notes,
     date = date.toLocalDate(), seasonId = seasonId,
 )
-
 fun ExtraIncome.toEntity() = ExtraIncomeEntity(
     id = id, title = title, amount = amount, notes = notes,
     date = date.toEpochMilli(), seasonId = seasonId,
@@ -75,18 +70,15 @@ fun ExpenseEntity.toDomain() = Expense(
     id = id, title = title, amount = amount, notes = notes,
     date = date.toLocalDate(), seasonId = seasonId,
 )
-
 fun Expense.toEntity() = ExpenseEntity(
     id = id, title = title, amount = amount, notes = notes,
     date = date.toEpochMilli(), seasonId = seasonId,
 )
 
-// ── Season ────────────────────────────────────────────────────────────────────
 fun SeasonEntity.toDomain() = Season(
     id = id, name = name,
     startYear = startYear, endYear = endYear, isActive = isActive,
 )
-
 fun Season.toEntity() = SeasonEntity(
     id = id, name = name,
     startYear = startYear, endYear = endYear, isActive = isActive,
