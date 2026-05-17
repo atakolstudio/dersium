@@ -45,11 +45,24 @@ fun StudentDetailScreen(
         if (student == null) return ""
         val name = student.parentName.ifEmpty { student.fullName }
         val amt = "₺${state.pendingAmount.toInt()}"
+        val fmt = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("tr"))
+        val today = java.time.LocalDate.now().format(fmt)
+        val lessonDates = state.lessons.filter { !it.isPaid }
+            .sortedBy { it.date }
+            .joinToString(", ") { it.date.format(fmt) }
+        val dateInfo = if (lessonDates.isNotEmpty()) "
+Ders tarihleri: $lessonDates" else ""
         return when (student.paymentType) {
-            PaymentType.MONTHLY -> "Merhaba $name, bu ayki ders ödemesi için bilginize sunarım. ${student.fullName} için bekleyen tutar: $amt. İyi çalışmalar! 🎓"
-            PaymentType.AFTER_CERTAIN_LESSONS -> "Merhaba $name, ${student.fullName} ${student.lessonCountForPayment} dersini tamamladı. Ders ücreti: $amt. Ödeme için bilginize sunarım. 🎓"
-            PaymentType.AFTER_LESSON -> "Merhaba $name, bugünkü ders için ödeme: $amt. İyi çalışmalar! 🎓"
-            PaymentType.UPFRONT -> "Merhaba $name, ${student.fullName} için bekleyen ödeme: $amt. Bilginize sunarım. 🎓"
+            PaymentType.MONTHLY -> "Merhaba $name, bu ayki ders ödemesi için bilginize sunarım ($today).
+${student.fullName} için bekleyen tutar: $amt.$dateInfo
+İyi çalışmalar! 🎓"
+            PaymentType.AFTER_CERTAIN_LESSONS -> "Merhaba $name, ${student.fullName} ${student.lessonCountForPayment} dersini tamamladı ($today).
+Ders ücreti: $amt.$dateInfo
+Ödeme için bilginize sunarım. 🎓"
+            PaymentType.AFTER_LESSON -> "Merhaba $name, bugünkü ders ($today) için ödeme: $amt.
+İyi çalışmalar! 🎓"
+            PaymentType.UPFRONT -> "Merhaba $name, ${student.fullName} için bekleyen ödeme: $amt ($today).$dateInfo
+Bilginize sunarım. 🎓"
         }
     }
 
