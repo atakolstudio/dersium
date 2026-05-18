@@ -1,7 +1,9 @@
 package com.dersium.feature.students
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -60,6 +62,12 @@ fun StudentDetailScreen(
             else -> "$totalLessons haftadır devam ediyor"
         }
         return "İyi günler $parentName $salutation,\n\n${student.fullName} ile dersimiz $weekText, acelesi yok sadece bilgilendirmek istedim.\n\nDers tarihleri:\n$dateLines\n\nTamamlanan ders: $totalLessons\nBekleyen tutar: $pendingAmt\n\nKolay gelsin."
+    }
+
+    fun callPhone(phone: String) {
+        val clean = phone.replace("[^0-9+]".toRegex(), "")
+        val uri = android.net.Uri.parse("tel:$clean")
+        try { context.startActivity(Intent(Intent.ACTION_DIAL, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }) } catch (_: Exception) {}
     }
 
     fun openWhatsApp(phone: String, message: String) {
@@ -202,14 +210,24 @@ fun StudentDetailScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text("Anne:", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary, fontWeight = FontWeight.SemiBold)
                                     Text(student.motherName, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                                    if (student.motherPhone.isNotEmpty()) Text("· ${student.motherPhone}", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextTertiary)
+                                    if (student.motherPhone.isNotEmpty()) Text(
+                                "· ${student.motherPhone}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = DersiumColors.Primary,
+                                modifier = Modifier.clickable { callPhone(student.motherPhone) }
+                            )
                                 }
                             }
                             if (student.fatherName.isNotEmpty()) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text("Baba:", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary, fontWeight = FontWeight.SemiBold)
                                     Text(student.fatherName, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                                    if (student.fatherPhone.isNotEmpty()) Text("· ${student.fatherPhone}", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextTertiary)
+                                    if (student.fatherPhone.isNotEmpty()) Text(
+                                "· ${student.fatherPhone}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = DersiumColors.Primary,
+                                modifier = Modifier.clickable { callPhone(student.fatherPhone) }
+                            )
                                 }
                             }
                         }
