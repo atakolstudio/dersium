@@ -30,7 +30,7 @@ object DatabaseModule {
                     db.execSQL("INSERT OR IGNORE INTO seasons (id, name, startYear, endYear, isActive) VALUES (1, '2025-2026', 2025, 2026, 1)")
                 }
             })
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
     @Provides fun provideStudentDao(db: DersiumDatabase) = db.studentDao()
