@@ -61,8 +61,8 @@ fun LessonsScreen(
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryBox(state.totalLessons.toString(), "Ders", DersiumColors.PrimaryContainer, DersiumColors.TextPrimary, Modifier.weight(1f))
-                    SummaryBox(state.paidTotal.fmt(state.currency), "Ödendi", DersiumColors.IncomeContainer, DersiumColors.Income, Modifier.weight(1f))
-                    SummaryBox(if (state.pendingTotal == 0.0) "Tamam" else state.pendingTotal.fmt(state.currency), "", DersiumColors.ExpenseContainer, DersiumColors.Expense, Modifier.weight(1f))
+                    SummaryBox(state.paidTotal.fmt(state.currency), "Ödendi", DersiumColors.IncomeContainer, DersiumColors.Income, Modifier.weight(1.5f))
+                    SummaryBox(if (state.pendingTotal == 0.0) "Tamam" else state.pendingTotal.fmt(state.currency), "Bekleyen", DersiumColors.ExpenseContainer, DersiumColors.Expense, Modifier.weight(1.5f))
                 }
                 OutlinedTextField(
                     value = state.searchQuery, onValueChange = viewModel::onSearchQueryChange,
