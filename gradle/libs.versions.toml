@@ -75,7 +75,6 @@ turbine       = "1.2.0"
 mockk         = "1.13.17"
 coroutinesTest= "1.10.2"
 
-firebase-bom      = "33.1.0"
 google-services   = "4.4.2"
 crashlytics-plugin= "3.0.2"
 
@@ -125,9 +124,7 @@ coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 coroutines-core    = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core",    version.ref = "coroutines" }
 
 # Network
-retrofit          = { group = "com.squareup.retrofit2", name = "retrofit",          version.ref = "retrofit" }
 retrofit-moshi    = { group = "com.squareup.retrofit2", name = "converter-moshi",   version.ref = "retrofit" }
-okhttp            = { group = "com.squareup.okhttp3",   name = "okhttp",            version.ref = "okhttp"   }
 okhttp-logging    = { group = "com.squareup.okhttp3",   name = "logging-interceptor", version.ref = "okhttp" }
 moshi-kotlin      = { group = "com.squareup.moshi",     name = "moshi-kotlin",      version.ref = "moshi"    }
 moshi-compiler    = { group = "com.squareup.moshi",     name = "moshi-kotlin-codegen", version.ref = "moshi" }
@@ -137,39 +134,26 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network  = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 # WorkManager + Hilt
-workmanager-ktx          = { group = "androidx.work",  name = "work-runtime-ktx",   version.ref = "workmanager" }
 hilt-workmanager         = { group = "androidx.hilt",  name = "hilt-work",          version.ref = "hiltExt"     }
 hilt-workmanager-compiler= { group = "androidx.hilt",  name = "hilt-compiler",      version.ref = "hiltExt"     }
 
 # Biometric
-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
-crypto    = { group = "androidx.security",  name = "security-crypto", version.ref = "crypto"   }
 
 # Material (View system, for themes)
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Desugar
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
 # Firebase
-firebase-bom         = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-analytics   = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 
 # Notification
-workmanager-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workmanager" }
 
 # Testing
-junit            = { group = "junit",                   name = "junit",              version.ref = "junit"         }
 androidx-junit   = { group = "androidx.test.ext",       name = "junit",              version.ref = "androidxJunit" }
 espresso-core    = { group = "androidx.test.espresso",  name = "espresso-core",      version.ref = "espresso"      }
-turbine          = { group = "app.cash.turbine",         name = "turbine",            version.ref = "turbine"       }
-mockk            = { group = "io.mockk",                name = "mockk",              version.ref = "mockk"         }
 coroutines-test  = { group = "org.jetbrains.kotlinx",   name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
-google-services  = { id = "com.google.gms.google-services", version.ref = "google-services" }
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics-plugin" }
 
 android-application  = { id = "com.android.application",                   version.ref = "agp"    }
 android-library      = { id = "com.android.library",                       version.ref = "agp"    }
@@ -177,14 +161,10 @@ kotlin-android       = { id = "org.jetbrains.kotlin.android",              versi
 kotlin-jvm           = { id = "org.jetbrains.kotlin.jvm",                  version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler     = { id = "org.jetbrains.kotlin.plugin.compose",       version.ref = "kotlin" }
-hilt                 = { id = "com.google.dagger.hilt.android",            version.ref = "hilt"   }
-ksp                  = { id = "com.google.devtools.ksp",                   version.ref = "ksp"    }
-room                 = { id = "androidx.room",                              version.ref = "room"   }
 
 [bundles]
 compose   = ["compose-ui", "compose-ui-graphics", "compose-ui-tooling-preview",
              "compose-material3", "compose-material-icons-extended",
              "compose-animation", "compose-foundation"]
-lifecycle = ["androidx-lifecycle-runtime-ktx", "androidx-lifecycle-viewmodel-compose",
              "androidx-lifecycle-runtime-compose"]
 network   = ["retrofit", "okhttp-logging", "moshi-kotlin", "retrofit-moshi"]
