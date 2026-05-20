@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dersium.core.common.DersiumAnalytics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.domain.model.Lesson
 import com.dersium.core.domain.model.PaymentStatus
@@ -39,6 +40,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { DersiumAnalytics.logScreenView("home") }
 
     Box(modifier = Modifier.fillMaxSize().background(DersiumColors.Background)) {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 100.dp)) {
