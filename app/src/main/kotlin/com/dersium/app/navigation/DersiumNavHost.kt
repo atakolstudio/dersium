@@ -18,6 +18,7 @@ import com.dersium.feature.lessons.AddEditLessonScreen
 import com.dersium.feature.lessons.LessonsScreen
 import com.dersium.feature.reports.ReportsScreen
 import com.dersium.feature.settings.SettingsScreen
+import com.dersium.feature.settings.PrivacyPolicyScreen
 import com.dersium.feature.export.ExportScreen
 import com.dersium.feature.students.AddEditStudentScreen
 import com.dersium.feature.students.StudentDetailScreen
@@ -119,7 +120,7 @@ fun DersiumNavHost(
 
             // ── Detail / edit screens ─────────────────────────────────────────
             composable(Screen.Settings.route) {
-                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export.route) })
+                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export.route) }, onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) })
             }
 
             composable(
@@ -166,6 +167,10 @@ fun DersiumNavHost(
 
             composable(Screen.Export.route) {
                 ExportScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Screen.PrivacyPolicy.route) {
+                PrivacyPolicyScreen(onBack = { navController.popBackStack() })
             }
         }
     }

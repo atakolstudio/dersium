@@ -33,6 +33,7 @@ import com.dersium.core.ui.theme.DersiumColors
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit = {},
+    onPrivacyPolicy: () -> Unit = {},
     onExport: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
