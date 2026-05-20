@@ -29,6 +29,12 @@ android {
             keyAlias      = "androiddebugkey"
             keyPassword   = "android"
         }
+        create("release") {
+            storeFile     = file("release.keystore")
+            storePassword = "DersiumStore2026!"
+            keyAlias      = "dersium"
+            keyPassword   = "DersiumKey2026!"
+        }
     }
 
     buildTypes {
@@ -38,7 +44,7 @@ android {
             isDebuggable        = true
         }
         release {
-            signingConfig      = signingConfigs.getByName("debugSigned")
+            signingConfig      = signingConfigs.getByName("release")
             isMinifyEnabled    = true
             isShrinkResources  = true
             isDebuggable       = false

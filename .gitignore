@@ -44,3 +44,6 @@ build_*.log
 # ── Kapak ─────────────────────────────────────────────────────────────────────
 # Room schema dosyaları CI için tutulur
 # **/schemas/
+
+# Release keystore - GIT'e ekleme!
+app/release.keystore
