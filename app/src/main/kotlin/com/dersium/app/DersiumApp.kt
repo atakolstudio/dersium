@@ -2,6 +2,7 @@ package com.dersium.app
 
 import android.app.Application
 import com.dersium.core.common.DersiumAnalytics
+import com.dersium.core.common.NotificationHelper
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
@@ -13,5 +14,6 @@ class DersiumApp : Application() {
         FirebaseApp.initializeApp(this)
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         DersiumAnalytics.init(this)
+        NotificationHelper.createChannel(this)
     }
 }
