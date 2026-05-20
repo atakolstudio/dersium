@@ -1,4 +1,6 @@
 plugins {
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
