@@ -1,5 +1,7 @@
 package com.dersium.feature.auth
 
+import com.dersium.feature.auth.PinHasher
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.repository.UserPreferencesRepository
