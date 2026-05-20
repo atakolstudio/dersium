@@ -1,0 +1,1 @@
+Özel ders öğretmenleri için öğrenci, ders ve ödeme yönetim uygulaması.

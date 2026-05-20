@@ -1,0 +1,53 @@
+Dersium, özel ders veren öğretmenler için tasarlanmış kapsamlı bir yönetim uygulamasıdır.
+
+📚 ÖĞRENCİ YÖNETİMİ
+• Öğrenci kayıtları (isim, okul, sınıf)
+• Anne ve baba bilgileri ayrı ayrı
+• Haftalık ders programı tanımlama
+• Aktif/Pasif öğrenci takibi
+
+📅 DERS TAKİBİ
+• Ders ekleme ve düzenleme
+• Otomatik saat doldurma (öğrenci programından)
+• Grid ve liste görünümü
+• Aylık gruplama
+
+💰 ÖDEME TAKİBİ
+• Ödendi/Bekleyen durumu
+• Peşin, ders sonrası, aylık ödeme tipleri
+• Bekleyen ödemeleri listeleme
+
+📱 WHATSAPP BİLDİRİM
+• Veli seçimi (anne/baba)
+• Hazır mesaj şablonu
+• Mesaj düzenleme imkanı
+• Tek tıkla WhatsApp'a gönder
+
+📊 RAPORLAR
+• Öğrenci bazlı gelir raporu
+• Aylık kazanç trendi
+• Tahsilat oranı analizi
+• Sezon karşılaştırması
+
+📅 TAKVİM VE KAPASİTE
+• Haftalık program görünümü
+• Kapasite analizi (yeni öğrenci alınabilir mi?)
+• Öğrenci düzenlilik takibi
+
+📄 PDF RAPOR
+• Sezon özeti PDF
+• Öğrenci bazlı PDF
+• Paylaşma özelliği
+
+💾 VERİ GÜVENLİĞİ
+• Tüm veriler cihazınızda saklanır
+• Veritabanı yedekleme ve geri yükleme
+• PIN kilidi
+• İnternet bağlantısı gerektirmez
+
+🎨 ÖZELLEŞTIRME
+• 3 farklı tema rengi
+• Koyu tema
+• Sezon yönetimi
+
+Dersium ile öğrencilerinizi, derslerinizi ve ödemelerinizi kolayca takip edin!
