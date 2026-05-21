@@ -4,8 +4,9 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
 android {
-    namespace = "com.dersium.core.network"
+    namespace  = "com.dersium.core.network"
     compileSdk = 36
     defaultConfig { minSdk = 26 }
     compileOptions {
@@ -14,14 +15,10 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
 }
+
 dependencies {
+    implementation(libs.androidx.core.ktx)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.moshi.kotlin)
-    ksp(libs.moshi.compiler)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.coroutines.android)
 }
