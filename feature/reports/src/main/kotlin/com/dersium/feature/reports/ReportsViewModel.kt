@@ -80,7 +80,7 @@ class ReportsViewModel @Inject constructor(
 
                 val dayData = DayOfWeek.entries.map { dow ->
                     val ls = lessons.filter { it.date.dayOfWeek == dow }
-                    DayData(dow.getDisplayName(TextStyle.SHORT, Locale("tr")), dow, ls.size, ls.filter { it.isPaid }.sumOf { it.fee })
+                    DayData(dow.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr")), dow, ls.size, ls.filter { it.isPaid }.sumOf { it.fee })
                 }
 
                 val lessonsBySeasonId = allLessons.groupBy { it.seasonId }

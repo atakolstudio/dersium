@@ -43,7 +43,7 @@ fun StudentDetailScreen(
     LaunchedEffect(studentId) { viewModel.loadStudent(studentId) }
 
     val student = state.student
-    val dateFmt = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("tr"))
+    val dateFmt = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("tr"))
 
     var showParentDialog by remember { mutableStateOf(false) }
     var showMessageDialog by remember { mutableStateOf(false) }
@@ -196,7 +196,7 @@ fun StudentDetailScreen(
                             StatMini("${state.lessons.size}", "Ders", Modifier.weight(1f))
                             StatMini("₺${state.paidAmount.toInt()}", "Ödendi", Modifier.weight(1f))
                             StatMini("₺${state.pendingAmount.toInt()}", "Bekleyen", Modifier.weight(1f))
-                            val lastDate = state.lessons.firstOrNull()?.date?.format(DateTimeFormatter.ofPattern("d MMM", Locale("tr"))) ?: "-"
+                            val lastDate = state.lessons.firstOrNull()?.date?.format(DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("tr"))) ?: "-"
                             StatMini(lastDate, "Son Ders", Modifier.weight(1f))
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -281,7 +281,7 @@ fun StudentDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StudentLessonCard(lesson: Lesson, onTogglePayment: () -> Unit, modifier: Modifier = Modifier) {
-    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr"))
+    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
     Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Column(modifier = Modifier.weight(1f)) {

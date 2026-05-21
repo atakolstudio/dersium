@@ -115,7 +115,7 @@ object PdfReportGenerator {
             pg.c.drawText(h, x, pg.y, p(8f, C_WHITE, true))
         }
         pg.y += 8f; pg.ln()
-        val mFmt = DateTimeFormatter.ofPattern("MMMM yyyy", Locale("tr"))
+        val mFmt = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("tr"))
         lessons.groupBy { it.date.withDayOfMonth(1) }.toSortedMap(compareByDescending { it }).forEach { (mon, ls) ->
             pg.chk()
             val mp = ls.filter { it.isPaid }.sumOf { it.fee }
@@ -136,7 +136,7 @@ object PdfReportGenerator {
         dayList.forEach { dow ->
             pg.chk(16f)
             val ls = lessons.filter { it.date.dayOfWeek == dow }
-            val dn = dow.getDisplayName(TextStyle.FULL, Locale("tr"))
+            val dn = dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr"))
             val bl = (W - M - 200f) * ls.size / maxL
             pg.c.drawText(dn.take(10), M+4f, pg.y, p(9f, C_BLACK))
             pg.c.drawText("${ls.size} ders", M+110f, pg.y, p(9f, C_GRAY))
