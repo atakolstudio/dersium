@@ -13,6 +13,8 @@ android {
     kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
     implementation(libs.coroutines.core)
     implementation(libs.androidx.core.ktx)
 }
