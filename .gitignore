@@ -48,3 +48,4 @@ build_*.log
 # Release keystore - GIT'e ekleme!
 app/release.keystore
 app/google-services.json
+app/google-services.json
