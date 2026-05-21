@@ -81,6 +81,9 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(projects.core.common)
     implementation(projects.core.data)
