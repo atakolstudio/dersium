@@ -16,5 +16,4 @@ android {
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.coroutines.core)
-    implementation(libs.androidx.annotation)
 }
