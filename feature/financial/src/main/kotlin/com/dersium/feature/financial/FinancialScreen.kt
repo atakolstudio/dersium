@@ -177,8 +177,8 @@ private fun FinancialItemCard(item: Any, currency: String, color: Color, onDelet
     val title = when (item) { is ExtraIncome -> item.title; is Expense -> item.title; else -> "" }
     val amount = when (item) { is ExtraIncome -> item.amount; is Expense -> item.amount; else -> 0.0 }
     val date = when (item) {
-        is ExtraIncome -> item.date.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr")))
-        is Expense -> item.date.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr")))
+        is ExtraIncome -> item.date.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr")))
+        is Expense -> item.date.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr")))
         else -> ""
     }
     Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = DersiumColors.SurfaceVariant) {

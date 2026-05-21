@@ -78,7 +78,7 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { viewModel.previousWeek() }) { Icon(Icons.Default.ChevronLeft, null, tint = DersiumColors.TextPrimary) }
-                val monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy", Locale("tr"))
+                val monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("tr"))
                 Text(state.weekStart.format(monthFmt).replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
                 IconButton(onClick = { viewModel.nextWeek() }) { Icon(Icons.Default.ChevronRight, null, tint = DersiumColors.TextPrimary) }
             }
@@ -93,7 +93,7 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
                         modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(if (isSelected) DersiumColors.Primary else DersiumColors.SurfaceVariant).clickable { viewModel.selectDate(day) }.padding(vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr")).take(3), style = MaterialTheme.typography.labelSmall, color = if (isSelected) Color.White else DersiumColors.TextSecondary)
+                        Text(day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr")).take(3), style = MaterialTheme.typography.labelSmall, color = if (isSelected) Color.White else DersiumColors.TextSecondary)
                         Text("${day.dayOfMonth}", style = MaterialTheme.typography.titleSmall, color = if (isSelected) Color.White else if (isToday) DersiumColors.Primary else DersiumColors.TextPrimary, fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal)
                         if (hasLesson) Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(if (isSelected) Color.White else DersiumColors.Primary))
                         else Spacer(Modifier.height(4.dp))
@@ -159,7 +159,7 @@ private fun CapacityTab(state: CalendarUiState) {
                 val daySlots = grouped[dow]
                 Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.SurfaceVariant) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text(dow.getDisplayName(TextStyle.FULL, Locale("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                        Text(dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                         if (daySlots.isNullOrEmpty()) {
                             Text("Boş gün", style = MaterialTheme.typography.bodySmall, color = DersiumColors.Income)
                         } else {
@@ -181,7 +181,7 @@ private fun CapacityTab(state: CalendarUiState) {
                 Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.IncomeContainer) {
                     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.EventAvailable, null, tint = DersiumColors.Income, modifier = Modifier.size(18.dp))
-                        Text(dow.getDisplayName(TextStyle.FULL, Locale("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.SemiBold)
+                        Text(dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.SemiBold)
                         Text("· $desc", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
                     }
                 }
@@ -192,7 +192,7 @@ private fun CapacityTab(state: CalendarUiState) {
 
 @Composable
 private fun StudentCalendarTab(state: CalendarUiState) {
-    val dateFmt = DateTimeFormatter.ofPattern("d MMM", Locale("tr"))
+    val dateFmt = DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("tr"))
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp, bottom = 100.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (state.students.isEmpty()) {
             item { DersiumEmptyState(icon = Icons.Default.People, title = "Öğrenci yok", subtitle = "Önce öğrenci ekleyin") }
@@ -220,7 +220,7 @@ private fun StudentCalendarTab(state: CalendarUiState) {
                             if (student.scheduleSlots.isNotEmpty()) {
                                 Text(
                                     student.scheduleSlots.joinToString(", ") { slot ->
-                                        "${slot.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr"))} ${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')}"
+                                        "${slot.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr"))} ${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')}"
                                     },
                                     style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary,
                                 )

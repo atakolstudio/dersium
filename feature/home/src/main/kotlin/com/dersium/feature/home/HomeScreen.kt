@@ -236,7 +236,7 @@ private fun FinancialHomeCard(label: String, amount: String, icon: androidx.comp
 
 @Composable
 fun HomeLessonCard(lesson: Lesson, currency: String, onMarkPaid: () -> Unit, modifier: Modifier = Modifier) {
-    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr"))
+    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
     Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             DersiumAvatar(

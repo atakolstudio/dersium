@@ -187,7 +187,7 @@ private fun EnrichedStudentCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val dateFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr"))
+    val dateFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
     Surface(
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),

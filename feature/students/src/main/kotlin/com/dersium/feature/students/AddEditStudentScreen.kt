@@ -66,7 +66,7 @@ fun AddEditStudentScreen(
                                 modifier = Modifier.weight(1f),
                             ) {
                                 Text(
-                                    day.getDisplayName(TextStyle.SHORT, Locale("tr")).take(3),
+                                    day.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr")).take(3),
                                     modifier = Modifier.padding(vertical = 6.dp).wrapContentWidth(Alignment.CenterHorizontally),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (isSelected) Color.White else DersiumColors.TextSecondary,
@@ -209,7 +209,7 @@ fun AddEditStudentScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Icon(Icons.Default.Schedule, null, tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
                                 Column {
-                                    Text(slot.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                                    Text(slot.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                                     Text("${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')} · ${slot.durationMinutes}dk", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
                                 }
                             }

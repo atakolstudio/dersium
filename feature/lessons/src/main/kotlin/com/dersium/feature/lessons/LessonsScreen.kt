@@ -89,7 +89,7 @@ fun LessonsScreen(
             } else when (viewMode) {
                 LessonsViewMode.LIST -> {
                     val grouped = state.lessons.groupBy {
-                        "${it.date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("tr")).replaceFirstChar { c -> c.uppercase() }} ${it.date.year}"
+                        "${it.date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.forLanguageTag("tr")).replaceFirstChar { c -> c.uppercase() }} ${it.date.year}"
                     }
                     LazyColumn(modifier = Modifier.weight(1f), contentPadding = PaddingValues(bottom = 100.dp)) {
                         grouped.forEach { (month, lessons) ->
@@ -134,7 +134,7 @@ fun LessonsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LessonGridCard(lesson: Lesson, currency: String, onToggle: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
-    val fmt = DateTimeFormatter.ofPattern("d MMM", Locale("tr"))
+    val fmt = DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("tr"))
     Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             DersiumAvatar(initials = lesson.studentName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""), colorHex = lesson.studentAvatarColor, size = 36)
@@ -157,7 +157,7 @@ private fun LessonGridCard(lesson: Lesson, currency: String, onToggle: () -> Uni
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LessonListItem(lesson: Lesson, currency: String, onToggle: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit, modifier: Modifier = Modifier) {
-    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("tr"))
+    val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
     Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), color = DersiumColors.SurfaceVariant) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
