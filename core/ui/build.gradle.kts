@@ -28,8 +28,6 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network)
     implementation(libs.androidx.core.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.coroutines.android)
