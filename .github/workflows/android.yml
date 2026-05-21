@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Decode google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json
 
       - name: Download Gradle Wrapper
         run: |
@@ -41,8 +41,7 @@ jobs:
 
       - name: Decode Release Keystore
         if: github.ref == 'refs/heads/main'
-        run: |
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
+        run: echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > app/release.keystore
 
       - name: Build Release AAB
         if: github.ref == 'refs/heads/main'
