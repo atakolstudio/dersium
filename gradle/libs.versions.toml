@@ -166,4 +166,4 @@ compose-compiler     = { id = "org.jetbrains.kotlin.plugin.compose",       versi
 compose   = ["compose-ui", "compose-ui-graphics", "compose-ui-tooling-preview",
              "compose-material3", "compose-material-icons-extended",
              "compose-animation", "compose-foundation"]
-network   = ["retrofit", "okhttp-logging", "moshi-kotlin", "retrofit-moshi"]
+
