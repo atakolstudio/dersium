@@ -15,37 +15,30 @@ bin/
 gen/
 out/
 release/
-
 # ── Keystore / Signing ────────────────────────────────────────────────────────
 *.jks
 *.keystore
 keystore.properties
 signing.properties
-
 # ── IDE — Android Studio / IntelliJ ──────────────────────────────────────────
 .idea/
 *.iml
 *.iws
 *.ipr
 .vscode/
-
 # ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
-
 # ── Logs / Reports ────────────────────────────────────────────────────────────
 *.log
 build_*.log
 **/test-results/
 **/jacoco/
 **/lint-results*
-
 # ── Kapak ─────────────────────────────────────────────────────────────────────
 # Room schema dosyaları CI için tutulur
 # **/schemas/
-
 # Release keystore - GIT'e ekleme!
 app/release.keystore
-app/google-services.json
 app/google-services.json
