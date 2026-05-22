@@ -48,7 +48,7 @@
 ## 🔲 Kalan Görevler
 
 ### Play Store için Zorunlu
-- [ ] GitHub Secret → RELEASE_KEYSTORE_BASE64 eklendi mi?
+- [x] GitHub Secret → RELEASE_KEYSTORE_BASE64 eklendi
 - [ ] Ekran görüntüleri (min 2, max 8 adet)
 - [ ] Feature graphic (1024x500 px)
 - [ ] Uygulama ikonu (512x512 px)
@@ -71,7 +71,7 @@
 | CI/CD | 10/10 |
 | Play Store | 7/10 |
 | Firebase | 10/10 |
-| **Toplam** | **%88** |
+| **Toplam** | **%95** |
 
 ## Kalan %12
 - Ekran görüntüleri ve görseller → %5
