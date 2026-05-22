@@ -33,7 +33,7 @@ android {
             storeFile     = file("release.keystore")
             storePassword = "DersiumStore2026!"
             keyAlias      = "dersium"
-            keyPassword   = "DersiumKey2026!"
+            keyPassword   = "DersiumStore2026!"
         }
     }
 
