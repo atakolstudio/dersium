@@ -42,3 +42,4 @@ build_*.log
 # Release keystore - GIT'e ekleme!
 app/release.keystore
 app/google-services.json
+# Room schemas git'te saklanır

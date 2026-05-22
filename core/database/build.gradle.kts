@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 android {
     namespace = "com.dersium.core.database"
     compileSdk = 36
