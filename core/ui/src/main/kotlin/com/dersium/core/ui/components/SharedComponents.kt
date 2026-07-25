@@ -3,7 +3,10 @@ package com.dersium.core.ui.components
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,12 +22,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dersium.core.ui.theme.DersiumColors
+import com.dersium.core.ui.theme.DersiumMotion
+
+/**
+ * Tactile "press to shrink slightly" feedback used across tappable cards, chips and
+ * buttons so the whole app feels consistently alive rather than static Material defaults.
+ * Purely additive: existing composables are untouched unless they opt in to this modifier.
+ */
+fun Modifier.pressScale(
+    interactionSource: MutableInteractionSource,
+    pressedScale: Float = 0.96f,
+): Modifier = composed {
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) pressedScale else 1f,
+        animationSpec = DersiumMotion.springSnappy(),
+        label = "pressScale",
+    )
+    graphicsLayer { scaleX = scale; scaleY = scale }
+}
+
+/** Convenience: tappable surface with built-in press-scale + ripple-free clean tap. */
+fun Modifier.tappable(interactionSource: MutableInteractionSource, onClick: () -> Unit): Modifier =
+    this
+        .pressScale(interactionSource)
+        .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
 
 // ── Avatar ─────────────────────────────────────────────────────────────────────
 @Composable
@@ -83,9 +112,11 @@ fun DersiumFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     ExtendedFloatingActionButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.pressScale(interactionSource),
+        interactionSource = interactionSource,
         containerColor = DersiumColors.Primary,
         contentColor = Color.White,
         shape = RoundedCornerShape(16.dp),
@@ -253,19 +284,42 @@ fun StatCard(
     iconColor: Color,
     modifier: Modifier = Modifier,
     containerColor: Color = DersiumColors.SurfaceVariant,
+    onClick: (() -> Unit)? = null,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Surface(
-        modifier = modifier,
+        modifier = if (onClick != null) modifier.tappable(interactionSource, onClick) else modifier,
         shape = RoundedCornerShape(16.dp),
         color = containerColor,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
-            Text(value, style = MaterialTheme.typography.titleLarge, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-            Text(label, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+        Box {
+            // Subtle top glass highlight for depth without a heavy shadow
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(DersiumColors.GlassHighlight, Color.Transparent),
+                            endY = 120f,
+                        )
+                    )
+            )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(iconColor.copy(alpha = 0.14f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
+                }
+                Text(value, style = MaterialTheme.typography.titleLarge, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                Text(label, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+            }
         }
     }
 }
