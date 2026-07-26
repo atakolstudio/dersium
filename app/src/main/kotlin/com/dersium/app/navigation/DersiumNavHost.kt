@@ -44,7 +44,8 @@ fun DersiumNavHost(
     val currentDestination = navBackStackEntry?.destination
 
     val currentTabId = remember(currentDestination) {
-        bottomBarTabs.firstOrNull { (screen, _) -> currentDestination?.hasRoute(screen::class) == true }?.second
+        val route = currentDestination?.route
+        bottomBarTabs.firstOrNull { (screen, _) -> route == screen::class.qualifiedName }?.second
     }
     val showBottomBar = currentTabId != null
 
