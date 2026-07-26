@@ -88,6 +88,10 @@ jobs:
 
       - name: Build Release AAB
         if: github.ref == 'refs/heads/main'
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew bundleRelease --no-configuration-cache --no-build-cache --stacktrace
 
       - name: Upload Release AAB
