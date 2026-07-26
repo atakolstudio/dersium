@@ -77,6 +77,47 @@ fun DersiumBottomBar(
 }
 
 @Composable
+fun DersiumNavigationRail(
+    currentRoute: String,
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    NavigationRail(
+        modifier = modifier,
+        containerColor = DersiumColors.Surface,
+    ) {
+        Spacer(Modifier.height(12.dp))
+        dersiumNavItems.forEach { item ->
+            val selected = currentRoute == item.route
+            val interactionSource = remember { MutableInteractionSource() }
+            val iconColor by animateColorAsState(
+                targetValue = if (selected) item.selectedColor else DersiumColors.TextTertiary,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                label = "railIconColor",
+            )
+            NavigationRailItem(
+                selected = selected,
+                onClick = { onNavigate(item.route) },
+                interactionSource = interactionSource,
+                modifier = Modifier.pressScale(interactionSource),
+                icon = {
+                    Icon(
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                        contentDescription = item.label,
+                        tint = iconColor,
+                    )
+                },
+                label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                colors = NavigationRailItemDefaults.colors(
+                    indicatorColor = item.selectedColor.copy(alpha = 0.16f),
+                ),
+            )
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+}
+
+@Composable
 private fun BottomNavItemView(
     item: BottomNavItem,
     selected: Boolean,
