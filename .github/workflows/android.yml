@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -53,11 +57,19 @@ jobs:
             echo '```'
             echo "</details>"
           } > comment.md
-          curl -s -X POST \
+          HTTP_STATUS=$(curl -s -o /tmp/comment_resp.json -w "%{http_code}" -X POST \
             -H "Authorization: token $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
-            -d @<(python3 -c "import json,sys; print(json.dumps({'body': open('comment.md').read()}))")
+            -d @<(python3 -c "import json,sys; print(json.dumps({'body': open('comment.md').read()}))"))
+          echo "PR comment POST returned HTTP $HTTP_STATUS"
+          cat /tmp/comment_resp.json
+          # Redundant channel: surface the same summary as workflow error annotations,
+          # since the Checks API annotations are readable without blob-storage log access.
+          grep -E "error:|FAILURE|e: |What went wrong" build.log | tail -10 | while IFS= read -r line; do
+            escaped=$(echo "$line" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+            echo "::error::${escaped}"
+          done
 
       - name: Fail job if build failed
         if: steps.build_debug.outcome == 'failure'
