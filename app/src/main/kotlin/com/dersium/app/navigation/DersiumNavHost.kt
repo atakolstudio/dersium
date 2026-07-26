@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.*
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.dersium.core.ui.components.DersiumBottomBar
+import com.dersium.core.ui.components.DersiumNavigationRail
 import com.dersium.feature.auth.AuthScreen
 import com.dersium.feature.calendar.CalendarScreen
 import com.dersium.feature.financial.FinancialScreen
@@ -58,19 +60,27 @@ fun DersiumNavHost(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                DersiumBottomBar(
-                    currentRoute = currentTabId ?: "home",
-                    onNavigate = { tabId ->
-                        val screen = bottomBarTabs.firstOrNull { it.second == tabId }?.first ?: Screen.Home
-                        navigateToTab(screen)
-                    },
-                )
-            }
-        },
-    ) { innerPadding ->
+    // Material's standard "medium" width breakpoint (tablets, foldables, split-screen):
+    // a side rail reaches better on wide screens than a bottom bar. No extra
+    // adaptive-layout dependency needed — just the window width Compose already exposes.
+    val isWideScreen = LocalConfiguration.current.screenWidthDp >= 600
+    val onNavigateTab: (String) -> Unit = { tabId ->
+        val screen = bottomBarTabs.firstOrNull { it.second == tabId }?.first ?: Screen.Home
+        navigateToTab(screen)
+    }
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        if (showBottomBar && isWideScreen) {
+            DersiumNavigationRail(currentRoute = currentTabId ?: "home", onNavigate = onNavigateTab)
+        }
+        Scaffold(
+            modifier = Modifier.weight(1f),
+            bottomBar = {
+                if (showBottomBar && !isWideScreen) {
+                    DersiumBottomBar(currentRoute = currentTabId ?: "home", onNavigate = onNavigateTab)
+                }
+            },
+        ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
@@ -166,6 +176,7 @@ fun DersiumNavHost(
             composable<Screen.PrivacyPolicy> {
                 PrivacyPolicyScreen(onBack = { navController.popBackStack() })
             }
+        }
         }
     }
 }
