@@ -2,6 +2,7 @@ package com.dersium.feature.students
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -188,8 +189,9 @@ private fun EnrichedStudentCard(
     modifier: Modifier = Modifier,
 ) {
     val dateFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
+    val interactionSource = remember { MutableInteractionSource() }
     Surface(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = modifier.fillMaxWidth().tappable(interactionSource, onClick),
         shape = RoundedCornerShape(16.dp),
         color = DersiumColors.SurfaceVariant,
     ) {

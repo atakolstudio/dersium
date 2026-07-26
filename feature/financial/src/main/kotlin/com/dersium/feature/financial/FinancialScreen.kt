@@ -1,9 +1,12 @@
 package com.dersium.feature.financial
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -103,24 +106,32 @@ fun FinancialScreen(viewModel: FinancialViewModel = hiltViewModel()) {
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp, ),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(items, key = {
+                    itemsIndexed(items, key = { _, it ->
                         when (it) {
                             is ExtraIncome -> "income_${it.id}"
                             is Expense -> "expense_${it.id}"
                             else -> it.hashCode()
                         }
-                    }) { item ->
-                        FinancialItemCard(
-                            item = item,
-                            currency = state.currency,
-                            color = color,
-                            onDelete = {
-                                when (item) {
-                                    is ExtraIncome -> viewModel.deleteIncome(item)
-                                    is Expense -> viewModel.deleteExpense(item)
-                                }
-                            },
-                        )
+                    }) { index, item ->
+                        var visible by remember(item) { mutableStateOf(false) }
+                        LaunchedEffect(item) { visible = true }
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = fadeIn(tween(200, delayMillis = (index * 35).coerceAtMost(180))) +
+                                slideInVertically(tween(200, delayMillis = (index * 35).coerceAtMost(180))) { it / 4 },
+                        ) {
+                            FinancialItemCard(
+                                item = item,
+                                currency = state.currency,
+                                color = color,
+                                onDelete = {
+                                    when (item) {
+                                        is ExtraIncome -> viewModel.deleteIncome(item)
+                                        is Expense -> viewModel.deleteExpense(item)
+                                    }
+                                },
+                            )
+                        }
                     }
                 }
             }
