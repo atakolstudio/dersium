@@ -24,28 +24,34 @@ import com.dersium.feature.students.AddEditStudentScreen
 import com.dersium.feature.students.StudentDetailScreen
 import com.dersium.feature.students.StudentsScreen
 
-// Tabs with bottom bar visible
-private val bottomBarRoutes = setOf(
-    Screen.Home.route,
-    Screen.Students.route,
-    Screen.Lessons.route,
-    Screen.Calendar.route,
-    Screen.Financial.route,
-    Screen.Reports.route,
+// Bottom-bar tab destinations, mapped to the plain string ids DersiumBottomBar already
+// speaks (kept stable on purpose so core:ui doesn't need to know about Screen at all).
+private val bottomBarTabs: List<Pair<Screen, String>> = listOf(
+    Screen.Home      to "home",
+    Screen.Students  to "students",
+    Screen.Lessons   to "lessons",
+    Screen.Calendar  to "calendar",
+    Screen.Financial to "financial",
+    Screen.Reports   to "reports",
 )
 
 @Composable
 fun DersiumNavHost(
-    startDestination: String = Screen.Home.route,
+    startDestination: Screen = Screen.Home,
     navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute in bottomBarRoutes
+    val currentDestination = navBackStackEntry?.destination
+
+    val currentTabId = remember(currentDestination) {
+        val route = currentDestination?.route
+        bottomBarTabs.firstOrNull { (screen, _) -> route == screen::class.qualifiedName }?.second
+    }
+    val showBottomBar = currentTabId != null
 
     // Helper to go to a main tab (save/restore state)
-    fun navigateToTab(route: String) {
-        navController.navigate(route) {
+    fun navigateToTab(screen: Screen) {
+        navController.navigate(screen) {
             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
             launchSingleTop = true
             restoreState = true
@@ -56,8 +62,11 @@ fun DersiumNavHost(
         bottomBar = {
             if (showBottomBar) {
                 DersiumBottomBar(
-                    currentRoute = currentRoute ?: Screen.Home.route,
-                    onNavigate = ::navigateToTab,
+                    currentRoute = currentTabId ?: "home",
+                    onNavigate = { tabId ->
+                        val screen = bottomBarTabs.firstOrNull { it.second == tabId }?.first ?: Screen.Home
+                        navigateToTab(screen)
+                    },
                 )
             }
         },
@@ -74,102 +83,87 @@ fun DersiumNavHost(
             popExitTransition  = { fadeOut(tween(250)) + slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(250)) },
         ) {
             // Auth
-            composable(Screen.Auth.route) {
+            composable<Screen.Auth> {
                 AuthScreen(
                     onAuthSuccess = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Auth.route) { inclusive = true }
+                        navController.navigate(Screen.Home) {
+                            popUpTo(Screen.Auth) { inclusive = true }
                         }
                     },
                 )
             }
 
             // ── Main tabs ─────────────────────────────────────────────────────
-            composable(Screen.Home.route) {
+            composable<Screen.Home> {
                 HomeScreen(
-                    onAddLesson          = { navController.navigate(Screen.AddEditLesson.createRoute()) },
-                    onNavigateToStudents = { navigateToTab(Screen.Students.route) },
-                    onNavigateToReports  = { navigateToTab(Screen.Reports.route) },
-                    onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
-                    onStudentClick = { id -> navController.navigate(Screen.StudentDetail.createRoute(id)) },
+                    onAddLesson          = { navController.navigate(Screen.AddEditLesson()) },
+                    onNavigateToStudents = { navigateToTab(Screen.Students) },
+                    onNavigateToReports  = { navigateToTab(Screen.Reports) },
+                    onNavigateToSettings = { navController.navigate(Screen.Settings) },
+                    onStudentClick = { id -> navController.navigate(Screen.StudentDetail(id)) },
                 )
             }
 
-            composable(Screen.Students.route) {
+            composable<Screen.Students> {
                 StudentsScreen(
-                    onStudentClick = { id -> navController.navigate(Screen.StudentDetail.createRoute(id)) },
-                    onAddStudent   = { navController.navigate(Screen.AddEditStudent.createRoute()) },
+                    onStudentClick = { id -> navController.navigate(Screen.StudentDetail(id)) },
+                    onAddStudent   = { navController.navigate(Screen.AddEditStudent()) },
                 )
             }
 
-            composable(Screen.Lessons.route) {
+            composable<Screen.Lessons> {
                 LessonsScreen(
-                    onAddLesson  = { navController.navigate(Screen.AddEditLesson.createRoute()) },
-                    onEditLesson = { id -> navController.navigate(Screen.AddEditLesson.createRoute(lessonId = id)) },
+                    onAddLesson  = { navController.navigate(Screen.AddEditLesson()) },
+                    onEditLesson = { id -> navController.navigate(Screen.AddEditLesson(lessonId = id)) },
                 )
             }
 
-            composable(Screen.Calendar.route) {
+            composable<Screen.Calendar> {
                 CalendarScreen(
-                    onAddLesson = { navController.navigate(Screen.AddEditLesson.createRoute()) },
+                    onAddLesson = { navController.navigate(Screen.AddEditLesson()) },
                 )
             }
 
-            composable(Screen.Financial.route) { FinancialScreen() }
-            composable(Screen.Reports.route)   { ReportsScreen()   }
+            composable<Screen.Financial> { FinancialScreen() }
+            composable<Screen.Reports>   { ReportsScreen()   }
 
             // ── Detail / edit screens ─────────────────────────────────────────
-            composable(Screen.Settings.route) {
-                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export.route) }, onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) })
+            composable<Screen.Settings> {
+                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export) }, onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy) })
             }
 
-            composable(
-                route = Screen.StudentDetail.route,
-                arguments = listOf(navArgument("studentId") { type = NavType.LongType }),
-            ) { back ->
-                val studentId = back.arguments!!.getLong("studentId")
+            composable<Screen.StudentDetail> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.StudentDetail>()
                 StudentDetailScreen(
-                    studentId  = studentId,
+                    studentId  = args.studentId,
                     onBack     = { navController.popBackStack() },
-                    onEdit     = { navController.navigate(Screen.AddEditStudent.createRoute(studentId)) },
-                    onAddLesson = { navController.navigate(Screen.AddEditLesson.createRoute(studentId = studentId)) },
+                    onEdit     = { navController.navigate(Screen.AddEditStudent(args.studentId)) },
+                    onAddLesson = { navController.navigate(Screen.AddEditLesson(studentId = args.studentId)) },
                 )
             }
 
-            composable(
-                route = Screen.AddEditStudent.route,
-                arguments = listOf(
-                    navArgument("studentId") { type = NavType.LongType; defaultValue = -1L },
-                ),
-            ) { back ->
-                val id = back.arguments!!.getLong("studentId").takeIf { it != -1L }
+            composable<Screen.AddEditStudent> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.AddEditStudent>()
                 AddEditStudentScreen(
-                    studentId = id,
+                    studentId = args.studentId,
                     onBack    = { navController.popBackStack() },
                 )
             }
 
-            composable(
-                route = Screen.AddEditLesson.route,
-                arguments = listOf(
-                    navArgument("lessonId")  { type = NavType.LongType; defaultValue = -1L },
-                    navArgument("studentId") { type = NavType.LongType; defaultValue = -1L },
-                ),
-            ) { back ->
-                val lessonId  = back.arguments!!.getLong("lessonId").takeIf  { it != -1L }
-                val studentId = back.arguments!!.getLong("studentId").takeIf { it != -1L }
+            composable<Screen.AddEditLesson> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.AddEditLesson>()
                 AddEditLessonScreen(
-                    lessonId            = lessonId,
-                    preSelectedStudentId = studentId,
+                    lessonId            = args.lessonId,
+                    preSelectedStudentId = args.studentId,
                     onBack              = { navController.popBackStack() },
                 )
             }
 
-            composable(Screen.Export.route) {
+            composable<Screen.Export> {
                 ExportScreen(onBack = { navController.popBackStack() })
             }
 
-            composable(Screen.PrivacyPolicy.route) {
+            composable<Screen.PrivacyPolicy> {
                 PrivacyPolicyScreen(onBack = { navController.popBackStack() })
             }
         }
