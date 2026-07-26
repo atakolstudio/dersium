@@ -32,7 +32,10 @@ jobs:
       - name: Build Debug APK
         id: build_debug
         continue-on-error: true
-        run: ./gradlew assembleDebug --no-configuration-cache --no-build-cache --stacktrace 2>&1 | tee build.log
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-configuration-cache --no-build-cache --stacktrace 2>&1 | tee build.log
 
       - name: Post build error to PR
         if: steps.build_debug.outcome == 'failure' && github.event_name == 'pull_request'
