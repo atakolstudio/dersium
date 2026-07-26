@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -8,6 +10,17 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+// Release signing credentials come from CI secrets (RELEASE_KEYSTORE_PASSWORD /
+// RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD env vars) or, for a local build, from
+// a gitignored local.properties (release.storePassword / release.keyAlias /
+// release.keyPassword) — never hardcoded in a file that's tracked by git.
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun releaseSecret(envKey: String, propKey: String): String =
+    System.getenv(envKey) ?: localProps.getProperty(propKey) ?: ""
 
 android {
     namespace   = "com.dersium.app"
@@ -32,9 +45,9 @@ android {
         }
         create("release") {
             storeFile     = file("release.keystore")
-            storePassword = "***REDACTED***"
-            keyAlias      = "dersium"
-            keyPassword   = "***REDACTED***"
+            storePassword = releaseSecret("RELEASE_KEYSTORE_PASSWORD", "release.storePassword")
+            keyAlias      = releaseSecret("RELEASE_KEY_ALIAS", "release.keyAlias")
+            keyPassword   = releaseSecret("RELEASE_KEY_PASSWORD", "release.keyPassword")
         }
     }
 
