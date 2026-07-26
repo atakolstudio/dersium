@@ -1,6 +1,7 @@
 package com.dersium.feature.lessons
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -169,9 +170,12 @@ private fun LessonListItem(lesson: Lesson, currency: String, onToggle: () -> Uni
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(lesson.fee.fmt(currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                    val toggleInteraction = remember { MutableInteractionSource() }
                     Surface(
+                        modifier = Modifier.pressScale(toggleInteraction),
                         shape = RoundedCornerShape(6.dp),
                         color = if (lesson.isPaid) DersiumColors.IncomeContainer else DersiumColors.PendingContainer,
+                        interactionSource = toggleInteraction,
                         onClick = onToggle,
                     ) {
                         Text(

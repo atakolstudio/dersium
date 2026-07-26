@@ -1,11 +1,14 @@
 package com.dersium.feature.home
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -86,8 +89,9 @@ fun HomeScreen(
                     }
                     // Net durum
                     val netColor = if (state.netAmount >= 0) DersiumColors.Income else DersiumColors.Expense
+                    val netInteraction = remember { MutableInteractionSource() }
                     Surface(
-                        modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToReports),
+                        modifier = Modifier.fillMaxWidth().tappable(netInteraction, onNavigateToReports),
                         shape = RoundedCornerShape(14.dp),
                         color = netColor.copy(alpha = 0.10f),
                     ) {
@@ -135,13 +139,22 @@ fun HomeScreen(
                     )
                 }
             } else {
-                items(state.recentLessons, key = { it.id }) { lesson ->
-                    HomeLessonCard(
-                        lesson = lesson,
-                        currency = state.currency,
-                        onMarkPaid = { viewModel.markLessonPaid(lesson.id) },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).clickable { onStudentClick(lesson.studentId) },
-                    )
+                itemsIndexed(state.recentLessons, key = { _, it -> it.id }) { index, lesson ->
+                    var visible by remember(lesson.id) { mutableStateOf(false) }
+                    LaunchedEffect(lesson.id) { visible = true }
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(tween(220, delayMillis = (index * 40).coerceAtMost(200))) +
+                            slideInVertically(tween(220, delayMillis = (index * 40).coerceAtMost(200))) { it / 4 },
+                    ) {
+                        HomeLessonCard(
+                            lesson = lesson,
+                            currency = state.currency,
+                            onMarkPaid = { viewModel.markLessonPaid(lesson.id) },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                            onClick = { onStudentClick(lesson.studentId) },
+                        )
+                    }
                 }
             }
         }
@@ -222,7 +235,8 @@ private fun PaidPendingCard(label: String, amount: String, icon: androidx.compos
 
 @Composable
 private fun FinancialHomeCard(label: String, amount: String, icon: androidx.compose.ui.graphics.vector.ImageVector, bgColor: Color, iconColor: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.clip(RoundedCornerShape(16.dp)).clickable(onClick = onClick), shape = RoundedCornerShape(16.dp), color = bgColor) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Surface(modifier = modifier.clip(RoundedCornerShape(16.dp)).tappable(interactionSource, onClick), shape = RoundedCornerShape(16.dp), color = bgColor) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Icon(icon, null, tint = iconColor, modifier = Modifier.size(20.dp))
@@ -235,9 +249,20 @@ private fun FinancialHomeCard(label: String, amount: String, icon: androidx.comp
 }
 
 @Composable
-fun HomeLessonCard(lesson: Lesson, currency: String, onMarkPaid: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeLessonCard(
+    lesson: Lesson,
+    currency: String,
+    onMarkPaid: () -> Unit,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
     val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
-    Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = DersiumColors.SurfaceVariant) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Surface(
+        modifier = (if (onClick != null) modifier.tappable(interactionSource, onClick) else modifier).fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = DersiumColors.SurfaceVariant,
+    ) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             DersiumAvatar(
                 initials = lesson.studentName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""),

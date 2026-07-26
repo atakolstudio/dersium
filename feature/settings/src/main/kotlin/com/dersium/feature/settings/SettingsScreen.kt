@@ -28,6 +28,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.domain.model.ThemeAccentColor
+import com.dersium.core.ui.components.pressScale
+import com.dersium.core.ui.components.tappable
 import com.dersium.core.ui.theme.DersiumColors
 
 @Composable
@@ -394,10 +396,11 @@ private fun SettingRow(
     onClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(if (onClick != null) Modifier.tappable(interactionSource, onClick) else Modifier)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -452,9 +455,10 @@ private fun PinSetupDialog(
             listOf(listOf(1, 2, 3), listOf(4, 5, 6), listOf(7, 8, 9)).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     row.forEach { d ->
+                        val keyInteraction = remember { MutableInteractionSource() }
                         Box(
-                            modifier = Modifier.size(64.dp).clip(CircleShape).background(DersiumColors.SurfaceVariant)
-                                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onDigit(d) },
+                            modifier = Modifier.size(64.dp).pressScale(keyInteraction).clip(CircleShape).background(DersiumColors.SurfaceVariant)
+                                .clickable(interactionSource = keyInteraction, indication = null) { onDigit(d) },
                             contentAlignment = Alignment.Center,
                         ) { Text(d.toString(), fontSize = 22.sp, fontWeight = FontWeight.Medium, color = DersiumColors.TextPrimary) }
                     }
@@ -462,14 +466,16 @@ private fun PinSetupDialog(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Spacer(Modifier.size(64.dp))
+                val zeroInteraction = remember { MutableInteractionSource() }
                 Box(
-                    modifier = Modifier.size(64.dp).clip(CircleShape).background(DersiumColors.SurfaceVariant)
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onDigit(0) },
+                    modifier = Modifier.size(64.dp).pressScale(zeroInteraction).clip(CircleShape).background(DersiumColors.SurfaceVariant)
+                        .clickable(interactionSource = zeroInteraction, indication = null) { onDigit(0) },
                     contentAlignment = Alignment.Center,
                 ) { Text("0", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = DersiumColors.TextPrimary) }
+                val backInteraction = remember { MutableInteractionSource() }
                 Box(
-                    modifier = Modifier.size(64.dp).clip(CircleShape)
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onBackspace),
+                    modifier = Modifier.size(64.dp).pressScale(backInteraction).clip(CircleShape)
+                        .clickable(interactionSource = backInteraction, indication = null, onClick = onBackspace),
                     contentAlignment = Alignment.Center,
                 ) { Icon(Icons.Default.Backspace, null, tint = DersiumColors.TextSecondary, modifier = Modifier.size(24.dp)) }
             }

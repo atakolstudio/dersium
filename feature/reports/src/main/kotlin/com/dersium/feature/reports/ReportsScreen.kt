@@ -1,5 +1,7 @@
 package com.dersium.feature.reports
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,15 +45,26 @@ fun ReportsScreen(viewModel: ReportsViewModel = hiltViewModel()) {
         Spacer(Modifier.height(12.dp))
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item {
-                when (state.tab) {
-                    ReportTab.STUDENT -> StudentReport(state)
-                    ReportTab.AVERAGE -> AverageReport(state)
-                    ReportTab.MONTHLY -> MonthlyReport(state)
-                    ReportTab.ACTIVE  -> ActiveReport(state)
-                    ReportTab.PAYMENT -> PaymentReport(state)
-                    ReportTab.PENDING -> PendingReport(state)
-                    ReportTab.DAILY   -> DailyReport(state)
-                    ReportTab.SEASON  -> SeasonReport(state)
+                AnimatedContent(
+                    targetState = state.tab,
+                    label = "report-tab",
+                    transitionSpec = {
+                        (fadeIn(tween(220)) + slideInVertically(tween(220)) { it / 6 }) togetherWith
+                            (fadeOut(tween(140)))
+                    },
+                ) { tab ->
+                    Column {
+                        when (tab) {
+                            ReportTab.STUDENT -> StudentReport(state)
+                            ReportTab.AVERAGE -> AverageReport(state)
+                            ReportTab.MONTHLY -> MonthlyReport(state)
+                            ReportTab.ACTIVE  -> ActiveReport(state)
+                            ReportTab.PAYMENT -> PaymentReport(state)
+                            ReportTab.PENDING -> PendingReport(state)
+                            ReportTab.DAILY   -> DailyReport(state)
+                            ReportTab.SEASON  -> SeasonReport(state)
+                        }
+                    }
                 }
             }
         }
