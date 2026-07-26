@@ -1,30 +1,31 @@
 package com.dersium.app.navigation
 
-sealed class Screen(val route: String) {
-    // Auth
-    data object Auth : Screen("auth")
+import kotlinx.serialization.Serializable
+
+/**
+ * Type-safe navigation destinations (Navigation-Compose 2.8+ / kotlinx.serialization).
+ * Replaces the old hand-rolled string-route + Bundle-argument approach: every screen
+ * and its arguments are now a plain, compiler-checked Kotlin type instead of a
+ * hand-formatted URL string, so a typo or a missing argument is now caught by the
+ * Kotlin compiler at build time instead of crashing at runtime.
+ */
+sealed interface Screen {
+    @Serializable data object Auth : Screen
 
     // Main tabs
-    data object Home      : Screen("home")
-    data object Students  : Screen("students")
-    data object Lessons   : Screen("lessons")
-    data object Calendar  : Screen("calendar")
-    data object Financial : Screen("financial")
-    data object Reports   : Screen("reports")
+    @Serializable data object Home : Screen
+    @Serializable data object Students : Screen
+    @Serializable data object Lessons : Screen
+    @Serializable data object Calendar : Screen
+    @Serializable data object Financial : Screen
+    @Serializable data object Reports : Screen
 
     // Detail / add screens (no bottom bar)
-    data object Settings : Screen("settings")
-    data object Export        : Screen("export")
-    data object PrivacyPolicy : Screen("privacy_policy")
+    @Serializable data object Settings : Screen
+    @Serializable data object Export : Screen
+    @Serializable data object PrivacyPolicy : Screen
 
-    data object StudentDetail : Screen("student/{studentId}") {
-        fun createRoute(studentId: Long) = "student/$studentId"
-    }
-    data object AddEditStudent : Screen("student/edit?studentId={studentId}") {
-        fun createRoute(studentId: Long? = null) = if (studentId != null) "student/edit?studentId=$studentId" else "student/edit?studentId=-1"
-    }
-    data object AddEditLesson : Screen("lesson/edit?lessonId={lessonId}&studentId={studentId}") {
-        fun createRoute(lessonId: Long? = null, studentId: Long? = null) =
-            "lesson/edit?lessonId=${lessonId ?: -1L}&studentId=${studentId ?: -1L}"
-    }
+    @Serializable data class StudentDetail(val studentId: Long) : Screen
+    @Serializable data class AddEditStudent(val studentId: Long? = null) : Screen
+    @Serializable data class AddEditLesson(val lessonId: Long? = null, val studentId: Long? = null) : Screen
 }
