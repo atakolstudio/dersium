@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +34,46 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-configuration-cache --no-build-cache --stacktrace
+        id: build_debug
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-configuration-cache --no-build-cache --stacktrace 2>&1 | tee build.log
+
+      - name: Post build error to PR
+        if: steps.build_debug.outcome == 'failure' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "### ❌ assembleDebug failed"
+            echo '```'
+            grep -E "error:|FAILURE|e: |What went wrong|Caused by" build.log | tail -100
+            echo '```'
+            echo "<details><summary>Last 150 log lines</summary>"
+            echo '```'
+            tail -150 build.log
+            echo '```'
+            echo "</details>"
+          } > comment.md
+          HTTP_STATUS=$(curl -s -o /tmp/comment_resp.json -w "%{http_code}" -X POST \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            -d @<(python3 -c "import json,sys; print(json.dumps({'body': open('comment.md').read()}))"))
+          echo "PR comment POST returned HTTP $HTTP_STATUS"
+          cat /tmp/comment_resp.json
+          # Redundant channel: surface the same summary as workflow error annotations,
+          # since the Checks API annotations are readable without blob-storage log access.
+          grep -E "error:|FAILURE|e: |What went wrong" build.log | tail -10 | while IFS= read -r line; do
+            escaped=$(echo "$line" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+            echo "::error::${escaped}"
+          done
+
+      - name: Fail job if build failed
+        if: steps.build_debug.outcome == 'failure'
+        run: exit 1
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
