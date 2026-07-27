@@ -1,5 +1,7 @@
 package com.dersium.feature.students
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.PaymentType
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Immutable
 data class AddEditStudentUiState(
     val isLoading: Boolean = false,
     val name: String = "",

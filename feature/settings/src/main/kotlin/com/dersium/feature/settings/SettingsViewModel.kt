@@ -1,5 +1,7 @@
 package com.dersium.feature.settings
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Season
@@ -12,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
+@Immutable
 data class SettingsUiState(
     val isPinEnabled: Boolean = false,
     val isBiometricEnabled: Boolean = false,

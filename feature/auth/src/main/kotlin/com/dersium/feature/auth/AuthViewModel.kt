@@ -1,5 +1,7 @@
 package com.dersium.feature.auth
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.repository.UserPreferencesRepository
@@ -8,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Immutable
 data class AuthUiState(
     val pinCode: String = "",
     val enteredDigits: String = "",

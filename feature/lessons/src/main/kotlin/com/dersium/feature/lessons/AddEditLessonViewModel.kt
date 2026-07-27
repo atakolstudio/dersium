@@ -1,5 +1,7 @@
 package com.dersium.feature.lessons
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Lesson
@@ -15,6 +17,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
+@Immutable
 data class AddEditLessonUiState(
     val isLoading: Boolean = false,
     val students: List<Student> = emptyList(),

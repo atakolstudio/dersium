@@ -1,5 +1,7 @@
 package com.dersium.feature.calendar
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Lesson
@@ -34,6 +36,7 @@ data class WeekCapacity(
     val freeSlots: List<Pair<DayOfWeek, String>>,
 )
 
+@Immutable
 data class CalendarUiState(
     val selectedDate: LocalDate = LocalDate.now(),
     val weekStart: LocalDate = LocalDate.now().with(java.time.DayOfWeek.MONDAY),

@@ -1,5 +1,7 @@
 package com.dersium.feature.export
 
+import androidx.compose.runtime.Immutable
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -16,6 +18,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
+@Immutable
 data class ExportUiState(
     val isLoading: Boolean = false,
     val message: String? = null,
