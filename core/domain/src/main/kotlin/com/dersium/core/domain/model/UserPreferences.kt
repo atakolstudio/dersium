@@ -10,6 +10,7 @@ data class UserPreferences(
     val isFirstLaunch: Boolean = true,
     val isPremium: Boolean = false,
     val maxFreeStudents: Int = 5,
+    val dailyReminderEnabled: Boolean = true,
 )
 
 enum class ThemeAccentColor(val displayName: String, val colorHex: String) {

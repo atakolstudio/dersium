@@ -31,6 +31,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val CURRENCY = stringPreferencesKey("currency")
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val IS_PREMIUM = booleanPreferencesKey("is_premium")
+        val DAILY_REMINDER_ENABLED = booleanPreferencesKey("daily_reminder_enabled")
     }
 
     override val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -50,8 +51,15 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 currency = prefs[Keys.CURRENCY] ?: "₺",
                 isFirstLaunch = prefs[Keys.IS_FIRST_LAUNCH] ?: true,
                 isPremium = prefs[Keys.IS_PREMIUM] ?: false,
+                dailyReminderEnabled = prefs[Keys.DAILY_REMINDER_ENABLED] ?: true,
             )
         }
+
+    override suspend fun setDailyReminderEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.DAILY_REMINDER_ENABLED] = enabled
+        }
+    }
 
     override suspend fun setPinCode(pin: String) {
         context.dataStore.edit { prefs ->

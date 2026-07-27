@@ -44,6 +44,15 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="34">
 
+        <!-- DersiumApp implements Configuration.Provider (Hilt WorkerFactory) for
+             @HiltWorker support, so the default on-startup initializer must be removed —
+             WorkManager then initializes on-demand using that configuration instead. -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            tools:node="remove" />
+
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"

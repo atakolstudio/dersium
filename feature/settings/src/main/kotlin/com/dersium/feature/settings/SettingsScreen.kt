@@ -113,6 +113,26 @@ fun SettingsScreen(
             }
         }
 
+        // ── Bildirimler ────────────────────────────────────────────────────────
+        item { SectionHeader("Bildirimler", Icons.Default.Notifications) }
+        item {
+            SettingCard {
+                SettingRow(
+                    icon = Icons.Default.NotificationsActive,
+                    iconColor = DersiumColors.Pending,
+                    title = "Günlük Ders Hatırlatması",
+                    subtitle = "Her sabah bugünkü dersler ve bekleyen ödemeler için bildirim",
+                    trailing = {
+                        Switch(
+                            checked = state.dailyReminderEnabled,
+                            onCheckedChange = viewModel::setDailyReminderEnabled,
+                            colors = SwitchDefaults.colors(checkedTrackColor = DersiumColors.Primary),
+                        )
+                    },
+                )
+            }
+        }
+
         // ── Sezon Yönetimi ─────────────────────────────────────────────────────
         item { SectionHeader("Sezon Yönetimi", Icons.Default.CalendarMonth) }
         item {
