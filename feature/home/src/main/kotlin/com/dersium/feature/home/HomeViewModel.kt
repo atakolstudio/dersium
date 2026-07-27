@@ -1,5 +1,7 @@
 package com.dersium.feature.home
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.*
@@ -12,6 +14,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
 
+@Immutable
 data class HomeUiState(
     val isLoading: Boolean = true,
     val studentCount: Int = 0,

@@ -1,5 +1,7 @@
 package com.dersium.feature.financial
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.*
@@ -13,6 +15,7 @@ import javax.inject.Inject
 
 enum class FinancialTab { INCOME, EXPENSE }
 
+@Immutable
 data class FinancialUiState(
     val tab: FinancialTab = FinancialTab.INCOME,
     val extraIncomes: List<ExtraIncome> = emptyList(),
@@ -23,6 +26,7 @@ data class FinancialUiState(
     val currency: String = "₺",
 )
 
+@Immutable
 data class AddFinancialItemState(
     val title: String = "",
     val amount: String = "",

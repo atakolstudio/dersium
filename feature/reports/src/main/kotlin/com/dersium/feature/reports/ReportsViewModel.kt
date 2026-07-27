@@ -1,5 +1,7 @@
 package com.dersium.feature.reports
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.*
@@ -22,6 +24,7 @@ data class MonthlyData(val month: String, val lessonCount: Int, val income: Doub
 data class DayData(val day: String, val dayOfWeek: DayOfWeek, val lessonCount: Int, val income: Double)
 data class SeasonStats(val season: Season, val lessonCount: Int, val totalIncome: Double, val paidAmount: Double, val pendingAmount: Double, val studentCount: Int, val avgPerLesson: Double, val collectionRate: Double, val isActive: Boolean)
 
+@Immutable
 data class ReportsUiState(
     val tab: ReportTab = ReportTab.STUDENT,
     val studentIncomes: List<StudentIncome> = emptyList(),

@@ -1,5 +1,7 @@
 package com.dersium.feature.lessons
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Lesson
@@ -14,6 +16,7 @@ import javax.inject.Inject
 
 enum class LessonFilter(val label: String) { ALL("Tümü"), PENDING("Bekleyen"), PAID("Ödendi") }
 
+@Immutable
 data class LessonsUiState(
     val isLoading: Boolean = true,
     val lessons: List<Lesson> = emptyList(),

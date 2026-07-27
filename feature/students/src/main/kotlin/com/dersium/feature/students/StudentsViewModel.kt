@@ -1,5 +1,7 @@
 package com.dersium.feature.students
 
+import androidx.compose.runtime.Immutable
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Student
@@ -13,6 +15,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
+@Immutable
 data class StudentsUiState(
     val isLoading: Boolean = true,
     val students: List<Student> = emptyList(),
