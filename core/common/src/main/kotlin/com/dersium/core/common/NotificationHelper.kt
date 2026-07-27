@@ -56,4 +56,23 @@ object NotificationHelper {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.notify(notificationId, notification)
     }
+
+    fun showDigestNotification(
+        context: Context,
+        title: String,
+        message: String,
+        notificationId: Int,
+    ) {
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.notify(notificationId, notification)
+    }
 }

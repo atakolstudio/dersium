@@ -21,6 +21,7 @@ data class SettingsUiState(
     val themeAccentColor: ThemeAccentColor = ThemeAccentColor.INDIGO,
     val currency: String = "₺",
     val isPremium: Boolean = false,
+    val dailyReminderEnabled: Boolean = true,
     val activeSeasonId: Long = 1L,
     val activeSeasonName: String = "",
     val seasons: List<Season> = emptyList(),
@@ -51,6 +52,7 @@ class SettingsViewModel @Inject constructor(
             themeAccentColor = prefs.themeAccentColor,
             currency = prefs.currency,
             isPremium = prefs.isPremium,
+            dailyReminderEnabled = prefs.dailyReminderEnabled,
             activeSeasonId = prefs.activeSeasonId,
             activeSeasonName = activeSeason?.displayName ?: "",
             seasons = seasons,
@@ -99,6 +101,7 @@ class SettingsViewModel @Inject constructor(
     fun disablePin() { viewModelScope.launch { userPreferencesRepository.clearPinCode() } }
     fun setBiometric(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setBiometricEnabled(enabled) } }
     fun setThemeAccent(color: ThemeAccentColor) { viewModelScope.launch { userPreferencesRepository.setThemeAccentColor(color) } }
+    fun setDailyReminderEnabled(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setDailyReminderEnabled(enabled) } }
 
     fun createNewSeason(name: String, startYear: Int, endYear: Int) {
         viewModelScope.launch {

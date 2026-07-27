@@ -13,4 +13,5 @@ interface UserPreferencesRepository {
     suspend fun setThemeAccentColor(color: ThemeAccentColor)
     suspend fun setFirstLaunchCompleted()
     suspend fun setPremium(isPremium: Boolean)
+    suspend fun setDailyReminderEnabled(enabled: Boolean)
 }
