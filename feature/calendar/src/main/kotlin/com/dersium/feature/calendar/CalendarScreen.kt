@@ -1,10 +1,14 @@
 package com.dersium.feature.calendar
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.domain.model.Lesson
 import com.dersium.core.ui.components.*
 import com.dersium.core.ui.theme.DersiumColors
+import com.dersium.core.ui.theme.DersiumMotion
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -89,8 +94,14 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
                     val isSelected = day == state.selectedDate
                     val isToday = day == LocalDate.now()
                     val hasLesson = day in state.lessonDates
+                    val bgColor by animateColorAsState(
+                        targetValue = if (isSelected) DersiumColors.Primary else DersiumColors.SurfaceVariant,
+                        animationSpec = DersiumMotion.springSmooth(), label = "dayPillBg",
+                    )
+                    val interactionSource = remember { MutableInteractionSource() }
                     Column(
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(if (isSelected) DersiumColors.Primary else DersiumColors.SurfaceVariant).clickable { viewModel.selectDate(day) }.padding(vertical = 8.dp),
+                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(bgColor)
+                            .tappable(interactionSource) { viewModel.selectDate(day) }.padding(vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr")).take(3), style = MaterialTheme.typography.labelSmall, color = if (isSelected) Color.White else DersiumColors.TextSecondary)
@@ -114,8 +125,16 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
         if (state.lessonsOnSelectedDay.isEmpty()) {
             item { DersiumEmptyState(icon = Icons.Default.EventAvailable, title = "Bu gün ders yok", subtitle = "Ders eklemek için + butonuna basın") }
         } else {
-            items(state.lessonsOnSelectedDay.sortedBy { it.startTime }) { lesson ->
-                LessonTimeCard(lesson = lesson, timeFmt = timeFmt, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            itemsIndexed(state.lessonsOnSelectedDay.sortedBy { it.startTime }, key = { _, l -> l.id }) { index, lesson ->
+                var visible by remember(lesson.id) { mutableStateOf(false) }
+                LaunchedEffect(lesson.id) { visible = true }
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(tween(200, delayMillis = (index * 40).coerceAtMost(200))) +
+                        slideInVertically(tween(200, delayMillis = (index * 40).coerceAtMost(200))) { it / 4 },
+                ) {
+                    LessonTimeCard(lesson = lesson, timeFmt = timeFmt, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+                }
             }
         }
     }
@@ -198,7 +217,14 @@ private fun StudentCalendarTab(state: CalendarUiState) {
             item { DersiumEmptyState(icon = Icons.Default.People, title = "Öğrenci yok", subtitle = "Önce öğrenci ekleyin") }
             return@LazyColumn
         }
-        items(state.students) { student ->
+        itemsIndexed(state.students, key = { _, s -> s.id }) { index, student ->
+            var visible by remember(student.id) { mutableStateOf(false) }
+            LaunchedEffect(student.id) { visible = true }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(tween(200, delayMillis = (index * 35).coerceAtMost(180))) +
+                    slideInVertically(tween(200, delayMillis = (index * 35).coerceAtMost(180))) { it / 4 },
+            ) {
             val lessons = (state.studentLessons[student.id] ?: emptyList()).sortedByDescending { it.date }
             val totalLessons = lessons.size
             val firstLesson = lessons.minByOrNull { it.date }?.date
@@ -248,6 +274,7 @@ private fun StudentCalendarTab(state: CalendarUiState) {
                     }
                 }
             }
+        }
         }
     }
 }
