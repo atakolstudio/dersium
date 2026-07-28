@@ -2,6 +2,12 @@
 <resources>
     <string name="app_name">Dersium</string>
 
+    <!-- App shortcuts (launcher long-press) -->
+    <string name="shortcut_add_lesson_short">Ders Ekle</string>
+    <string name="shortcut_add_lesson_long">Yeni Ders Ekle</string>
+    <string name="shortcut_add_student_short">Öğrenci Ekle</string>
+    <string name="shortcut_add_student_long">Yeni Öğrenci Ekle</string>
+
     <!-- Navigation -->
     <string name="nav_home">Ana Sayfa</string>
     <string name="nav_students">Öğrenciler</string>

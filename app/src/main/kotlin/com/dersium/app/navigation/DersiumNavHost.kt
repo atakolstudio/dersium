@@ -41,9 +41,21 @@ private val bottomBarTabs: List<Pair<Screen, String>> = listOf(
 fun DersiumNavHost(
     startDestination: Screen = Screen.Home,
     navController: NavHostController = rememberNavController(),
+    pendingShortcut: Screen? = null,
+    onShortcutConsumed: () -> Unit = {},
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // Only fire the shortcut's destination once the graph has actually reached Home —
+    // that only happens after a successful PIN unlock (or immediately if PIN is off), so
+    // a launcher shortcut can never skip the lock screen.
+    LaunchedEffect(pendingShortcut, currentDestination?.route) {
+        if (pendingShortcut != null && currentDestination?.route == Screen.Home::class.qualifiedName) {
+            navController.navigate(pendingShortcut)
+            onShortcutConsumed()
+        }
+    }
 
     val currentTabId = remember(currentDestination) {
         val route = currentDestination?.route

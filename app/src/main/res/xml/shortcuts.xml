@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="add_lesson"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_add_lesson_short"
+        android:shortcutLongLabel="@string/shortcut_add_lesson_long">
+        <intent
+            android:action="com.dersium.app.ACTION_ADD_LESSON"
+            android:targetPackage="com.dersium.app"
+            android:targetClass="com.dersium.app.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="add_student"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_add_student_short"
+        android:shortcutLongLabel="@string/shortcut_add_student_long">
+        <intent
+            android:action="com.dersium.app.ACTION_ADD_STUDENT"
+            android:targetPackage="com.dersium.app"
+            android:targetClass="com.dersium.app.MainActivity" />
+    </shortcut>
+</shortcuts>
