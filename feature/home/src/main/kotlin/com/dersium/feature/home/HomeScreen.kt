@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dersium.core.common.DersiumAnalytics
+import com.dersium.core.common.shareViaWhatsAppOrSheet
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.domain.model.Lesson
 import com.dersium.core.domain.model.PaymentStatus
@@ -43,7 +45,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) { DersiumAnalytics.logScreenView("home") }
+    LaunchedEffect(Unit) {
+        viewModel.reminderEvent.collect { event ->
+            context.shareViaWhatsAppOrSheet(event.phone, event.message)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(DersiumColors.Background)) {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 100.dp)) {
@@ -151,6 +159,7 @@ fun HomeScreen(
                             lesson = lesson,
                             currency = state.currency,
                             onMarkPaid = { viewModel.markLessonPaid(lesson.id) },
+                            onSendReminder = { viewModel.sendPaymentReminder(lesson) },
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                             onClick = { onStudentClick(lesson.studentId) },
                         )
@@ -255,6 +264,7 @@ fun HomeLessonCard(
     onMarkPaid: () -> Unit,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    onSendReminder: (() -> Unit)? = null,
 ) {
     val fmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.forLanguageTag("tr"))
     val interactionSource = remember { MutableInteractionSource() }
@@ -271,6 +281,21 @@ fun HomeLessonCard(
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(lesson.studentName, style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                 Text("${lesson.date.format(fmt)} · ${lesson.durationMinutes} dk", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+            }
+            if (!lesson.isPaid && onSendReminder != null) {
+                val reminderInteraction = remember { MutableInteractionSource() }
+                IconButton(
+                    onClick = onSendReminder,
+                    modifier = Modifier.pressScale(reminderInteraction).size(32.dp),
+                    interactionSource = reminderInteraction,
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Ödeme hatırlatması gönder",
+                        tint = DersiumColors.TextSecondary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(lesson.fee.formatCurrency(currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
