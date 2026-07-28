@@ -8,6 +8,7 @@ import com.dersium.core.domain.model.*
 import com.dersium.core.domain.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -77,9 +78,27 @@ class HomeViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
+    private val _reminderEvent = Channel<ReminderShareEvent>(Channel.BUFFERED)
+    val reminderEvent: Flow<ReminderShareEvent> = _reminderEvent.receiveAsFlow()
+
     fun markLessonPaid(lessonId: Long) {
         viewModelScope.launch {
             lessonRepository.updatePaymentStatus(lessonId, PaymentStatus.PAID)
         }
     }
+
+    fun sendPaymentReminder(lesson: Lesson) {
+        viewModelScope.launch {
+            val student = studentRepository.getStudentById(lesson.studentId).first()
+            val currency = uiState.value.currency
+            val name = student?.fullName ?: lesson.studentName
+            val fmt = java.time.format.DateTimeFormatter.ofPattern("d MMMM", java.util.Locale.forLanguageTag("tr"))
+            val message = "Merhaba, $name için ${lesson.date.format(fmt)} tarihli dersin ödemesi " +
+                "(${lesson.fee.toInt()} $currency) bekliyor. Bilginize, teşekkürler 🙏"
+            val phone = student?.let { s -> s.parentPhone.ifBlank { s.phone } }
+            _reminderEvent.send(ReminderShareEvent(phone = phone, message = message))
+        }
+    }
 }
+
+data class ReminderShareEvent(val phone: String?, val message: String)
