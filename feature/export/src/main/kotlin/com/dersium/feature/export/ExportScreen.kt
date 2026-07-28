@@ -119,6 +119,9 @@ fun ExportScreen(
                                     style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary,
                                 )
                             }
+                            IconButton(onClick = { viewModel.shareBackupFile(file) }) {
+                                Icon(Icons.Default.Share, contentDescription = "Yedegi paylas", tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
+                            }
                         }
                     }
                 }
@@ -134,6 +137,7 @@ fun ExportScreen(
                         listOf(
                             "PDF olusturulunca paylasma menusu acar",
                             "Yedekler Downloads/Dersium/ klasorune kaydedilir",
+                            "Yedekleri paylas ikonuyla Drive, E-posta vb. yerlere gonderebilirsiniz",
                             "Geri yukleme mevcut tum verilerin uzerine yazar",
                             "Duzenli yedek almayi unutmayin!",
                         ).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }

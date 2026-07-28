@@ -107,16 +107,24 @@ class ExportViewModel @Inject constructor(
         }
     }
 
+    fun shareBackupFile(file: File) {
+        shareFile(file, "application/octet-stream", "Yedegi Paylas (Drive, E-posta, ...)")
+    }
+
     fun clearMessage() { _state.update { it.copy(message = null) } }
 
     private fun sharePdf(file: File) {
+        shareFile(file, "application/pdf", "PDF Paylas")
+    }
+
+    private fun shareFile(file: File, mimeType: String, chooserTitle: String) {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/pdf"
+            type = mimeType
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(Intent.createChooser(intent, "PDF Paylas").apply {
+        context.startActivity(Intent.createChooser(intent, chooserTitle).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
     }
