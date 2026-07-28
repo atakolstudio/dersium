@@ -20,7 +20,7 @@ enum class ReportTab(val label: String) {
 }
 
 data class StudentIncome(val student: Student, val totalIncome: Double, val lessonCount: Int, val paidAmount: Double)
-data class MonthlyData(val month: String, val lessonCount: Int, val income: Double)
+data class MonthlyData(val month: String, val lessonCount: Int, val income: Double, val changePercent: Double? = null)
 data class DayData(val day: String, val dayOfWeek: DayOfWeek, val lessonCount: Int, val income: Double)
 data class SeasonStats(val season: Season, val lessonCount: Int, val totalIncome: Double, val paidAmount: Double, val pendingAmount: Double, val studentCount: Int, val avgPerLesson: Double, val collectionRate: Double, val isActive: Boolean)
 
@@ -80,6 +80,13 @@ class ReportsViewModel @Inject constructor(
                 val monthly = lessons.groupBy { "${it.date.year}-${it.date.monthValue.toString().padStart(2,'0')}" }
                     .map { (m, ls) -> MonthlyData(m, ls.size, ls.filter { it.isPaid }.sumOf { it.fee }) }
                     .sortedBy { it.month }
+                    .let { list ->
+                        list.mapIndexed { i, m ->
+                            val prevIncome = if (i > 0) list[i - 1].income else null
+                            val change = if (prevIncome != null && prevIncome > 0) ((m.income - prevIncome) / prevIncome) * 100 else null
+                            m.copy(changePercent = change)
+                        }
+                    }
 
                 val dayData = DayOfWeek.entries.map { dow ->
                     val ls = lessons.filter { it.date.dayOfWeek == dow }
