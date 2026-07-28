@@ -1,6 +1,7 @@
 package com.dersium.app.widget
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -64,27 +65,28 @@ class DersiumWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(todayLessonCount: Int, pendingAmount: Double, currency: String) {
+    val context = androidx.glance.LocalContext.current
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(Color(0xFF13131A)))
+            .background(ColorProvider(day = Color(0xFF13131A), night = Color(0xFF13131A)))
             .padding(16.dp)
-            .clickable(actionStartActivity<MainActivity>()),
+            .clickable(actionStartActivity(Intent(context, MainActivity::class.java))),
     ) {
         Text(
             text = "Dersium",
-            style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color(0xFF94A3B8))),
+            style = TextStyle(fontSize = 12.sp, color = ColorProvider(day = Color(0xFF94A3B8), night = Color(0xFF94A3B8))),
         )
         Spacer(GlanceModifier.height(8.dp))
         Text(
             text = if (todayLessonCount > 0) "Bugün $todayLessonCount ders" else "Bugün ders yok",
-            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = ColorProvider(Color(0xFFF1F5F9))),
+            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = ColorProvider(day = Color(0xFFF1F5F9), night = Color(0xFFF1F5F9))),
         )
         if (pendingAmount > 0) {
             Spacer(GlanceModifier.height(4.dp))
             Text(
                 text = "Bekleyen: ${pendingAmount.toInt()} $currency",
-                style = TextStyle(fontSize = 14.sp, color = ColorProvider(Color(0xFFF59E0B))),
+                style = TextStyle(fontSize = 14.sp, color = ColorProvider(day = Color(0xFFF59E0B), night = Color(0xFFF59E0B))),
             )
         }
     }
