@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -137,6 +138,27 @@ private fun MonthlyReport(state: ReportsUiState) {
         if (state.monthlyData.isEmpty()) {
             DersiumEmptyState(icon = Icons.Default.BarChart, title = "Henüz veri yok", subtitle = "Ders ekleyerek başlayın")
         } else {
+            state.monthlyData.lastOrNull()?.changePercent?.let { change ->
+                val isUp = change >= 0
+                val changeColor = if (isUp) DersiumColors.Income else DersiumColors.Expense
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = changeColor.copy(alpha = 0.12f),
+                ) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(
+                            if (isUp) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
+                            contentDescription = null, tint = changeColor, modifier = Modifier.size(20.dp),
+                        )
+                        Text(
+                            "Bu ay geçen aya göre ${if (isUp) "%${String.format("%.0f", change)} arttı" else "%${String.format("%.0f", -change)} azaldı"}",
+                            style = MaterialTheme.typography.bodyMedium, color = changeColor, fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             Row(modifier = Modifier.fillMaxWidth().height(120.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 state.monthlyData.takeLast(6).forEach { m ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
@@ -154,7 +176,23 @@ private fun MonthlyReport(state: ReportsUiState) {
                             Text(m.month, style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                             StatusChip("${m.lessonCount} ders", DersiumColors.Primary)
                         }
-                        Text(m.income.fmt(state.currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            m.changePercent?.let { change ->
+                                val isUp = change >= 0
+                                val changeColor = if (isUp) DersiumColors.Income else DersiumColors.Expense
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        if (isUp) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
+                                        contentDescription = null, tint = changeColor, modifier = Modifier.size(14.dp),
+                                    )
+                                    Text(
+                                        "${if (isUp) "+" else ""}${String.format("%.0f", change)}%",
+                                        style = MaterialTheme.typography.labelSmall, color = changeColor, fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                            Text(m.income.fmt(state.currency), style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
                 Spacer(Modifier.height(6.dp))
