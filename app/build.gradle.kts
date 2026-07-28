@@ -132,6 +132,8 @@ dependencies {
     implementation(libs.workmanager.ktx)
     implementation(libs.hilt.workmanager)
     ksp(libs.hilt.workmanager.compiler)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
     implementation(libs.coroutines.android)
     implementation(libs.biometric)
     testImplementation(libs.junit)

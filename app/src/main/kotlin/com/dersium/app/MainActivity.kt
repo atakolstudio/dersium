@@ -12,10 +12,14 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.dersium.app.navigation.DersiumNavHost
 import com.dersium.app.navigation.Screen
+import com.dersium.app.widget.DersiumWidget
+import androidx.glance.appwidget.updateAll
 import com.dersium.core.ui.theme.DersiumTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -52,6 +56,11 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         pendingShortcut = intent.toShortcutScreen()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { DersiumWidget().updateAll(this@MainActivity) }
     }
 
     private fun Intent?.toShortcutScreen(): Screen? = when (this?.action) {

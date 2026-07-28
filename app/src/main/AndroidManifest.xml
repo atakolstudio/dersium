@@ -75,6 +75,18 @@
             android:name=".notification.NotificationReceiver"
             android:exported="false" />
 
+        <!-- Home screen widget: today's lessons + pending payment total -->
+        <receiver
+            android:name=".widget.DersiumWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dersium_widget_info" />
+        </receiver>
+
         <!-- Boot receiver — reschedule notifications after reboot -->
         <receiver
             android:name=".notification.BootReceiver"
