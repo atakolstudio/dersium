@@ -1,7 +1,8 @@
 package com.dersium.feature.calendar
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,8 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -114,9 +118,9 @@ private fun CalendarTab(state: CalendarUiState, viewModel: CalendarViewModel) {
         }
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatChip("${state.totalLessonsThisWeek} ders", Icons.Default.School, Modifier.weight(1f))
-                StatChip("${state.totalMinutesThisWeek / 60}s ${state.totalMinutesThisWeek % 60}dk", Icons.Default.Timer, Modifier.weight(1f))
-                StatChip("${state.studentsThisWeek} öğrenci", Icons.Default.People, Modifier.weight(1f))
+                StatChip("${state.totalLessonsThisWeek} ders", Icons.Default.School, Modifier.weight(1f), accentColor = DersiumColors.Primary)
+                StatChip("${state.totalMinutesThisWeek / 60}s ${state.totalMinutesThisWeek % 60}dk", Icons.Default.Timer, Modifier.weight(1f), accentColor = DersiumColors.Pending)
+                StatChip("${state.studentsThisWeek} öğrenci", Icons.Default.People, Modifier.weight(1f), accentColor = DersiumColors.Income)
             }
         }
         item {
@@ -148,62 +152,139 @@ private fun CapacityTab(state: CalendarUiState) {
             item { DersiumEmptyState(icon = Icons.Default.BarChart, title = "Kapasite bilgisi yok", subtitle = "Öğrencilere ders programı ekleyin") }
             return@LazyColumn
         }
+        val progress = if (cap.totalHours > 0) (cap.busyHours / cap.totalHours).toFloat().coerceIn(0f, 1f) else 0f
+        val ringColor = if (cap.canTakeNewStudent) DersiumColors.Income else DersiumColors.Expense
+
         item {
-            Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = if (cap.canTakeNewStudent) DersiumColors.IncomeContainer else DersiumColors.ExpenseContainer) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = if (cap.canTakeNewStudent) DersiumColors.IncomeContainer else DersiumColors.ExpenseContainer,
+            ) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(if (cap.canTakeNewStudent) Icons.Default.CheckCircle else Icons.Default.Warning, null, tint = if (cap.canTakeNewStudent) DersiumColors.Income else DersiumColors.Expense, modifier = Modifier.size(24.dp))
-                        Text(if (cap.canTakeNewStudent) "Yeni öğrenci alabilirsiniz!" else "Programınız dolu!", style = MaterialTheme.typography.titleMedium, color = if (cap.canTakeNewStudent) DersiumColors.Income else DersiumColors.Expense, fontWeight = FontWeight.Bold)
+                        Icon(if (cap.canTakeNewStudent) Icons.Default.CheckCircle else Icons.Default.Warning, null, tint = ringColor, modifier = Modifier.size(20.dp))
+                        Text(
+                            if (cap.canTakeNewStudent) "Yeni öğrenci alabilirsiniz!" else "Programınız dolu!",
+                            style = MaterialTheme.typography.titleMedium, color = ringColor, fontWeight = FontWeight.Bold,
+                        )
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Column {
-                            Text("${String.format("%.1f", cap.busyHours)}s", style = MaterialTheme.typography.titleLarge, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-                            Text("Dolu", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                        }
-                        Column {
-                            Text("${String.format("%.1f", cap.freeHours)}s", style = MaterialTheme.typography.titleLarge, color = DersiumColors.Income, fontWeight = FontWeight.Bold)
-                            Text("Boş", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+                    Spacer(Modifier.height(12.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        CapacityRing(progress = progress, ringColor = ringColor)
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            CapacityStatRow(label = "Dolu", value = "${String.format("%.1f", cap.busyHours)}s", color = DersiumColors.TextPrimary)
+                            CapacityStatRow(label = "Boş", value = "${String.format("%.1f", cap.freeHours)}s", color = DersiumColors.Income)
+                            CapacityStatRow(label = "Toplam", value = "${String.format("%.0f", cap.totalHours)}s", color = DersiumColors.TextSecondary)
                         }
                     }
-                    LinearProgressIndicator(progress = { (cap.busyHours / cap.totalHours).toFloat().coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth(), color = if (cap.canTakeNewStudent) DersiumColors.Pending else DersiumColors.Expense, trackColor = DersiumColors.Outline)
                 }
             }
         }
-        item { Text("Haftalık Program", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold) }
-        if (cap.slots.isEmpty()) {
-            item { Text("Öğrencilere ders programı eklenmemiş.", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }
+
+        val allFree = cap.slots.isEmpty() && cap.freeSlots.size >= 7
+        if (allFree) {
+            item {
+                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = DersiumColors.SurfaceVariant) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text("🎉", style = MaterialTheme.typography.displaySmall)
+                        Text("Bu hafta tamamen boş", style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                        Text("Henüz hiç ders programlanmamış — istediğin zaman yeni öğrenci ekleyebilirsin", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary, textAlign = TextAlign.Center)
+                    }
+                }
+            }
         } else {
+            item { Text("Haftalık Program", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold) }
             val grouped = cap.slots.groupBy { it.dayOfWeek }
-            items(DayOfWeek.entries) { dow ->
-                val daySlots = grouped[dow]
-                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.SurfaceVariant) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
-                        if (daySlots.isNullOrEmpty()) {
-                            Text("Boş gün", style = MaterialTheme.typography.bodySmall, color = DersiumColors.Income)
-                        } else {
+            val busyDays = DayOfWeek.entries.filter { !grouped[it].isNullOrEmpty() }
+            if (busyDays.isEmpty()) {
+                item { Text("Öğrencilere ders programı eklenmemiş.", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }
+            } else {
+                items(busyDays) { dow ->
+                    val daySlots = grouped[dow].orEmpty()
+                    Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.SurfaceVariant) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.SemiBold)
                             daySlots.forEach { slot ->
-                                Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(try { Color(android.graphics.Color.parseColor(slot.studentColor)) } catch (_: Exception) { DersiumColors.Primary }))
-                                    Text("${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')} · ${slot.durationMinutes}dk", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
-                                    Text(slot.studentName, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Medium)
+                                Row(modifier = Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Box(
+                                        modifier = Modifier.size(28.dp).clip(CircleShape)
+                                            .background(try { Color(android.graphics.Color.parseColor(slot.studentColor)).copy(alpha = 0.2f) } catch (_: Exception) { DersiumColors.PrimaryContainer }),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            slot.studentName.firstOrNull()?.uppercase() ?: "?",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = try { Color(android.graphics.Color.parseColor(slot.studentColor)) } catch (_: Exception) { DersiumColors.Primary },
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+                                    Column {
+                                        Text(slot.studentName, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Medium)
+                                        Text("${slot.startTime.hour.toString().padStart(2,'0')}:${slot.startTime.minute.toString().padStart(2,'0')} · ${slot.durationMinutes}dk", style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary)
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+
+            if (cap.freeSlots.isNotEmpty()) {
+                item { Spacer(Modifier.height(4.dp)); Text("Boş Günler", style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold) }
+                item {
+                    FlowRowFreeDays(cap.freeSlots)
+                }
+            }
         }
-        if (cap.freeSlots.isNotEmpty()) {
-            item { Text("Boş Günler", style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold) }
-            items(cap.freeSlots) { (dow, desc) ->
-                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.IncomeContainer) {
-                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.EventAvailable, null, tint = DersiumColors.Income, modifier = Modifier.size(18.dp))
-                        Text(dow.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.titleSmall, color = DersiumColors.Income, fontWeight = FontWeight.SemiBold)
-                        Text("· $desc", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+    }
+}
+
+@Composable
+private fun CapacityRing(progress: Float, ringColor: Color, size: androidx.compose.ui.unit.Dp = 84.dp) {
+    val animatedProgress by animateFloatAsState(targetValue = progress, animationSpec = DersiumMotion.springSmooth<Float>(), label = "capacityRing")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(size)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val stroke = 9.dp.toPx()
+            drawArc(color = DersiumColors.Outline, startAngle = -90f, sweepAngle = 360f, useCenter = false, style = Stroke(stroke, cap = StrokeCap.Round))
+            if (animatedProgress > 0f) {
+                drawArc(color = ringColor, startAngle = -90f, sweepAngle = 360f * animatedProgress, useCenter = false, style = Stroke(stroke, cap = StrokeCap.Round))
+            }
+        }
+        Text("${(animatedProgress * 100).toInt()}%", style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun CapacityStatRow(label: String, value: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(value, style = MaterialTheme.typography.titleMedium, color = color, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+    }
+}
+
+@Composable
+private fun FlowRowFreeDays(freeSlots: List<Pair<DayOfWeek, String>>) {
+    val rows = freeSlots.chunked(2)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        rows.forEach { rowItems ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                rowItems.forEach { (dow, desc) ->
+                    Surface(modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp), color = DersiumColors.IncomeContainer) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Icon(Icons.Default.EventAvailable, null, tint = DersiumColors.Income, modifier = Modifier.size(14.dp))
+                                Text(dow.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("tr")), style = MaterialTheme.typography.labelLarge, color = DersiumColors.Income, fontWeight = FontWeight.Bold)
+                            }
+                            Text(desc, style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary, maxLines = 1)
+                        }
                     }
                 }
+                if (rowItems.size == 1) Spacer(Modifier.weight(1f))
             }
         }
     }
@@ -303,10 +384,10 @@ private fun LessonTimeCard(lesson: Lesson, timeFmt: DateTimeFormatter, modifier:
 }
 
 @Composable
-private fun StatChip(text: String, icon: ImageVector, modifier: Modifier = Modifier) {
+private fun StatChip(text: String, icon: ImageVector, modifier: Modifier = Modifier, accentColor: Color = DersiumColors.Primary) {
     Surface(modifier = modifier, shape = RoundedCornerShape(10.dp), color = DersiumColors.SurfaceVariant) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(icon, null, tint = DersiumColors.Primary, modifier = Modifier.size(14.dp))
+            Icon(icon, null, tint = accentColor, modifier = Modifier.size(14.dp))
             Text(text, style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextPrimary)
         }
     }
