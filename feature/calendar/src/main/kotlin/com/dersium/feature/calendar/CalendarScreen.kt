@@ -246,7 +246,7 @@ private fun CapacityTab(state: CalendarUiState) {
 
 @Composable
 private fun CapacityRing(progress: Float, ringColor: Color, size: androidx.compose.ui.unit.Dp = 84.dp) {
-    val animatedProgress by animateFloatAsState(targetValue = progress, animationSpec = DersiumMotion.springSmooth(), label = "capacityRing")
+    val animatedProgress by animateFloatAsState(targetValue = progress, animationSpec = DersiumMotion.springSmooth<Float>(), label = "capacityRing")
     Box(contentAlignment = Alignment.Center, modifier = Modifier.size(size)) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val stroke = 9.dp.toPx()
