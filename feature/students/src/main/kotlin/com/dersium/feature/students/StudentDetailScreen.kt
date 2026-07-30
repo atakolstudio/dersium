@@ -2,7 +2,6 @@ package com.dersium.feature.students
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import com.dersium.core.common.shareViaWhatsAppOrSheet
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,10 +71,7 @@ fun StudentDetailScreen(
     }
 
     fun openWhatsApp(phone: String, message: String) {
-        val clean = phone.replace("[^0-9]".toRegex(), "")
-        val formatted = if (clean.startsWith("0")) "90${clean.drop(1)}" else if (!clean.startsWith("90")) "90$clean" else clean
-        val uri = Uri.parse("https://wa.me/$formatted?text=${Uri.encode(message)}")
-        try { context.startActivity(Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }) } catch (_: Exception) {}
+        context.shareViaWhatsAppOrSheet(phone, message)
     }
 
     // Parent selection dialog
