@@ -14,4 +14,5 @@ interface UserPreferencesRepository {
     suspend fun setFirstLaunchCompleted()
     suspend fun setPremium(isPremium: Boolean)
     suspend fun setDailyReminderEnabled(enabled: Boolean)
+    suspend fun setCurrency(currency: String)
 }

@@ -102,6 +102,7 @@ class SettingsViewModel @Inject constructor(
     fun setBiometric(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setBiometricEnabled(enabled) } }
     fun setThemeAccent(color: ThemeAccentColor) { viewModelScope.launch { userPreferencesRepository.setThemeAccentColor(color) } }
     fun setDailyReminderEnabled(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setDailyReminderEnabled(enabled) } }
+    fun setCurrency(currency: String) { viewModelScope.launch { userPreferencesRepository.setCurrency(currency) } }
 
     fun createNewSeason(name: String, startYear: Int, endYear: Int) {
         viewModelScope.launch {

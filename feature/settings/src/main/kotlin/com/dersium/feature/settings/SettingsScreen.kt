@@ -191,6 +191,23 @@ fun SettingsScreen(
                             )
                         }
                     }
+                    Text("Para Birimi", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        listOf("₺", "$", "€", "£").forEach { symbol ->
+                            val selected = state.currency == symbol
+                            val interactionSource = remember { MutableInteractionSource() }
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(if (selected) DersiumColors.Primary else DersiumColors.SurfaceVariant)
+                                    .tappable(interactionSource) { viewModel.setCurrency(symbol) },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(symbol, style = MaterialTheme.typography.titleMedium, color = if (selected) Color.White else DersiumColors.TextSecondary, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             }
         }

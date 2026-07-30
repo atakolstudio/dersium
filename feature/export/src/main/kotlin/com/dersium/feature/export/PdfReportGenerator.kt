@@ -36,8 +36,7 @@ object PdfReportGenerator {
         var c = page.canvas!!
         var y = M + 80f
 
-        fun np() {
-            doc.finishPage(page); num++
+        fun np() { footer(); doc.finishPage(page); num++
             page = doc.startPage(PdfDocument.PageInfo.Builder(W, H, num).create())!!
             c = page.canvas!!; y = M + 20f
         }
@@ -45,6 +44,7 @@ object PdfReportGenerator {
         fun txt(t: String, pt: Paint, x: Float = M) { chk(); c.drawText(t, x, y, pt); y += LH }
         fun ln(color: Int = C_LINE, w: Float = 1f) { chk(6f); c.drawLine(M, y, (W - M), y, lp(color, w)); y += 6f }
         fun sp(h: Float = 8f) { y += h }
+        fun footer() { c.drawText("Sayfa $num", W - M - 40f, H - 16f, p(8f, C_GRAY)) }
         fun sec(title: String) {
             chk(26f); sp(6f)
             c.drawRect(M, y - 14f, W - M, y + 4f, rp(C_PRIMARY))
@@ -54,7 +54,7 @@ object PdfReportGenerator {
         fun row(l: String, r: String, lc: Int = C_BLACK, rc: Int = C_BLACK) {
             chk(); c.drawText(l, M + 4f, y, p(10f, lc)); c.drawText(r, W - M - 4f - p(10f, rc).measureText(r), y, p(10f, rc)); y += LH
         }
-        fun finish() { doc.finishPage(page) }
+        fun finish() { footer(); doc.finishPage(page) }
     }
 
     fun generateSeasonReport(context: Context, season: Season, lessons: List<Lesson>, students: List<Student>, currency: String = "₺"): File {
@@ -62,7 +62,7 @@ object PdfReportGenerator {
         // Header
         pg.c.drawRect(0f, 0f, W.toFloat(), 70f, rp(C_BG))
         pg.c.drawText("DERSIUM", M, 32f, p(22f, C_WHITE, true))
-        pg.c.drawText("Ozel Ders Yonetim Sistemi", M, 50f, p(10f, C_GRAY))
+        pg.c.drawText("Özel Ders Yönetim Sistemi", M, 50f, p(10f, C_GRAY))
         pg.c.drawText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), W - M - 120f, 32f, p(9f, C_GRAY))
         pg.c.drawRect(0f, 70f, W.toFloat(), 73f, rp(C_PRIMARY))
         pg.y = 88f
@@ -73,9 +73,9 @@ object PdfReportGenerator {
         val rate = if (pAmt + uAmt > 0) (pAmt / (pAmt + uAmt) * 100).toInt() else 0
 
         // Summary
-        pg.sec("SEZON OZETI")
-        pg.txt("Ogrenci: ${students.size}  |  Toplam Ders: ${lessons.size}", p(10f, C_BLACK))
-        pg.txt("Odenen: ${paid.size}  |  Bekleyen: ${pend.size}  |  Tahsilat: %$rate", p(10f, C_BLACK))
+        pg.sec("SEZON ÖZETİ")
+        pg.txt("Öğrenci: ${students.size}  |  Toplam Ders: ${lessons.size}", p(10f, C_BLACK))
+        pg.txt("Ödenen: ${paid.size}  |  Bekleyen: ${pend.size}  |  Tahsilat: %$rate", p(10f, C_BLACK))
         pg.txt("Toplam Gelir: $currency${(pAmt+uAmt).toInt()}", p(10f, C_BLACK))
         pg.txt("Tahsil Edilen: $currency${pAmt.toInt()}  |  Bekleyen: $currency${uAmt.toInt()}", p(10f, C_BLACK))
         // Progress bar
@@ -86,9 +86,9 @@ object PdfReportGenerator {
         pg.y += 14f
 
         // Student breakdown
-        pg.sec("OGRENCI BAZLI OZET")
+        pg.sec("ÖĞRENCİ BAZLI ÖZET")
         pg.c.drawRect(M, pg.y - 13f, W - M, pg.y + 4f, rp(C_BLACK))
-        listOf("Ogrenci" to M+4f, "Ders" to M+180f, "Sure" to M+230f, "Odenen" to M+300f, "Bekleyen" to M+390f, "Oran" to M+470f).forEach { (h, x) ->
+        listOf("Öğrenci" to M+4f, "Ders" to M+180f, "Süre" to M+230f, "Ödenen" to M+300f, "Bekleyen" to M+390f, "Oran" to M+470f).forEach { (h, x) ->
             pg.c.drawText(h, x, pg.y, p(8f, C_WHITE, true))
         }
         pg.y += 8f; pg.ln()
@@ -109,9 +109,9 @@ object PdfReportGenerator {
         }
 
         // Monthly
-        pg.sec("AYLIK OZET")
+        pg.sec("AYLIK ÖZET")
         pg.c.drawRect(M, pg.y - 13f, W - M, pg.y + 4f, rp(C_BLACK))
-        listOf("Ay" to M+4f, "Ders" to M+160f, "Sure" to M+220f, "Odenen" to M+300f, "Bekleyen" to M+400f).forEach { (h, x) ->
+        listOf("Ay" to M+4f, "Ders" to M+160f, "Süre" to M+220f, "Ödenen" to M+300f, "Bekleyen" to M+400f).forEach { (h, x) ->
             pg.c.drawText(h, x, pg.y, p(8f, C_WHITE, true))
         }
         pg.y += 8f; pg.ln()
@@ -130,7 +130,7 @@ object PdfReportGenerator {
         }
 
         // Daily distribution
-        pg.sec("GUNLUK DAGILIM")
+        pg.sec("GÜNLÜK DAĞILIM")
         val dayList = listOf(DayOfWeek.MONDAY,DayOfWeek.TUESDAY,DayOfWeek.WEDNESDAY,DayOfWeek.THURSDAY,DayOfWeek.FRIDAY,DayOfWeek.SATURDAY,DayOfWeek.SUNDAY)
         val maxL = dayList.maxOf { d -> lessons.count { it.date.dayOfWeek == d } }.coerceAtLeast(1)
         dayList.forEach { dow ->
@@ -149,7 +149,7 @@ object PdfReportGenerator {
         // Lesson details
         pg.sec("DERS DETAYLARI")
         pg.c.drawRect(M, pg.y - 13f, W - M, pg.y + 4f, rp(C_BLACK))
-        listOf("Tarih" to M+4f, "Ogrenci" to M+75f, "Sure" to M+195f, "Konu" to M+250f, "Ucret" to M+390f, "Durum" to M+450f).forEach { (h, x) ->
+        listOf("Tarih" to M+4f, "Öğrenci" to M+75f, "Süre" to M+195f, "Konu" to M+250f, "Ücret" to M+390f, "Durum" to M+450f).forEach { (h, x) ->
             pg.c.drawText(h, x, pg.y, p(8f, C_WHITE, true))
         }
         pg.y += 8f; pg.ln()
@@ -162,12 +162,12 @@ object PdfReportGenerator {
             pg.c.drawText("${l.durationMinutes}dk", M+195f, pg.y, p(8f, C_BLACK))
             pg.c.drawText(l.topic.take(16), M+250f, pg.y, p(8f, C_BLACK))
             pg.c.drawText("$currency${l.fee.toInt()}", M+390f, pg.y, p(8f, sc))
-            pg.c.drawText(if(l.isPaid) "Odendi" else "Bekleyen", M+450f, pg.y, p(8f, sc, true))
+            pg.c.drawText(if(l.isPaid) "Ödendi" else "Bekleyen", M+450f, pg.y, p(8f, sc, true))
             pg.y += LH; pg.ln(C_LINE, 0.3f)
         }
 
         pg.sp(8f); pg.ln(C_PRIMARY, 2f)
-        pg.txt("Bu rapor Dersium uygulamasi tarafindan olusturulmustur.", p(8f, C_GRAY))
+        pg.txt("Bu rapor Dersium uygulaması tarafından oluşturulmuştur.", p(8f, C_GRAY))
         pg.finish()
 
         val f = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: context.filesDir, "Dersium_Sezon_${season.displayName}_${System.currentTimeMillis()}.pdf")
@@ -178,27 +178,27 @@ object PdfReportGenerator {
         val doc = PdfDocument(); val pg = Pg(doc)
         pg.c.drawRect(0f, 0f, W.toFloat(), 70f, rp(C_BG))
         pg.c.drawText("DERSIUM", M, 32f, p(22f, C_WHITE, true))
-        pg.c.drawText("Ogrenci Raporu", M, 50f, p(10f, C_GRAY))
+        pg.c.drawText("Öğrenci Raporu", M, 50f, p(10f, C_GRAY))
         pg.c.drawRect(0f, 70f, W.toFloat(), 73f, rp(C_PRIMARY))
         pg.y = 88f
         pg.c.drawText(student.fullName, M, pg.y, p(16f, C_PRIMARY, true)); pg.y += 24f
 
-        pg.sec("OGRENCI BILGILERI")
-        if (student.school.isNotEmpty()) pg.row("Okul / Sinif", "${student.school} - ${student.grade}")
+        pg.sec("ÖĞRENCİ BİLGİLERİ")
+        if (student.school.isNotEmpty()) pg.row("Okul / Sınıf", "${student.school} - ${student.grade}")
         if (student.parentName.isNotEmpty()) pg.row("Veli", student.parentName)
         if (student.parentPhone.isNotEmpty()) pg.row("Telefon", student.parentPhone)
-        pg.row("Ders Ucreti", "$currency${student.lessonFee.toInt()}/ders")
-        pg.row("Odeme Tipi", student.paymentType.displayName)
+        pg.row("Ders Ücreti", "$currency${student.lessonFee.toInt()}/ders")
+        pg.row("Ödeme Tipi", student.paymentType.displayName)
 
         val paid = lessons.filter { it.isPaid }; val pend = lessons.filter { !it.isPaid }
         val pAmt = paid.sumOf { it.fee }; val uAmt = pend.sumOf { it.fee }
         val rate = if (pAmt+uAmt > 0) (pAmt/(pAmt+uAmt)*100).toInt() else 0
         val mins = lessons.sumOf { it.durationMinutes }
 
-        pg.sec("ISTATISTIKLER")
-        pg.txt("Toplam Ders: ${lessons.size}  |  Odenen: ${paid.size}  |  Bekleyen: ${pend.size}", p(10f, C_BLACK))
+        pg.sec("İSTATİSTİKLER")
+        pg.txt("Toplam Ders: ${lessons.size}  |  Ödenen: ${paid.size}  |  Bekleyen: ${pend.size}", p(10f, C_BLACK))
         pg.txt("Tahsil: $currency${pAmt.toInt()}  |  Bekleyen: $currency${uAmt.toInt()}  |  Tahsilat: %$rate", p(10f, C_BLACK))
-        pg.txt("Toplam Sure: ${mins/60}s ${mins%60}dk", p(10f, C_BLACK))
+        pg.txt("Toplam Süre: ${mins/60}s ${mins%60}dk", p(10f, C_BLACK))
         pg.sp(4f)
         val bW = W - 2 * M
         pg.c.drawRect(M, pg.y, M+bW, pg.y+8f, rp(C_LINE))
@@ -207,7 +207,7 @@ object PdfReportGenerator {
 
         pg.sec("DERS DETAYLARI")
         pg.c.drawRect(M, pg.y-13f, W-M, pg.y+4f, rp(C_BLACK))
-        listOf("Tarih" to M+4f, "Sure" to M+110f, "Konu" to M+180f, "Ucret" to M+380f, "Durum" to M+445f).forEach { (h, x) ->
+        listOf("Tarih" to M+4f, "Süre" to M+110f, "Konu" to M+180f, "Ücret" to M+380f, "Durum" to M+445f).forEach { (h, x) ->
             pg.c.drawText(h, x, pg.y, p(8f, C_WHITE, true))
         }
         pg.y += 8f; pg.ln()
@@ -219,11 +219,11 @@ object PdfReportGenerator {
             pg.c.drawText("${l.durationMinutes}dk", M+110f, pg.y, p(9f, C_BLACK))
             pg.c.drawText(l.topic.take(22), M+180f, pg.y, p(9f, C_BLACK))
             pg.c.drawText("$currency${l.fee.toInt()}", M+380f, pg.y, p(9f, sc))
-            pg.c.drawText(if(l.isPaid) "Odendi" else "Bekleyen", M+445f, pg.y, p(9f, sc, true))
+            pg.c.drawText(if(l.isPaid) "Ödendi" else "Bekleyen", M+445f, pg.y, p(9f, sc, true))
             pg.y += LH; pg.ln(C_LINE, 0.3f)
         }
         pg.sp(8f); pg.ln(C_PRIMARY, 2f)
-        pg.txt("Bu rapor Dersium uygulamasi tarafindan olusturulmustur.", p(8f, C_GRAY))
+        pg.txt("Bu rapor Dersium uygulaması tarafından oluşturulmuştur.", p(8f, C_GRAY))
         pg.finish()
 
         val f = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: context.filesDir, "Dersium_${student.fullName.replace(" ","_")}_${System.currentTimeMillis()}.pdf")
