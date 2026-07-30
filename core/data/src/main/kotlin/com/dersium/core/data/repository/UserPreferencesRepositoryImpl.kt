@@ -61,6 +61,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun setCurrency(currency: String) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.CURRENCY] = currency
+        }
+    }
+
     override suspend fun setPinCode(pin: String) {
         context.dataStore.edit { prefs ->
             prefs[Keys.PIN_CODE] = pin
