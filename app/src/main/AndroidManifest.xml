@@ -43,6 +43,11 @@
             android:exported="false"
             tools:node="remove" />
 
+        <!-- Pre-fetch the Google Code Scanner (QR) module at install time -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui" />
+
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
