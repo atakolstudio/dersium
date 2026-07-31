@@ -107,6 +107,32 @@ class ExportViewModel @Inject constructor(
         }
     }
 
+    fun restoreBackup(file: File) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, message = null) }
+            BackupManager.importBackupFile(context, file)
+                .onSuccess {
+                    _state.update { it.copy(isLoading = false, message = "Geri yuklendi! Uygulamayi yeniden baslatın.") }
+                }
+                .onFailure { e ->
+                    _state.update { it.copy(isLoading = false, message = "Hata: ${e.message}") }
+                }
+        }
+    }
+
+    fun deleteBackup(file: File) {
+        viewModelScope.launch {
+            BackupManager.deleteBackup(file)
+                .onSuccess {
+                    refreshBackupList()
+                    _state.update { it.copy(message = "Yedek silindi") }
+                }
+                .onFailure { e ->
+                    _state.update { it.copy(message = "Hata: ${e.message}") }
+                }
+        }
+    }
+
     fun shareBackupFile(file: File) {
         shareFile(file, "application/octet-stream", "Yedegi Paylas (Drive, E-posta, ...)")
     }
