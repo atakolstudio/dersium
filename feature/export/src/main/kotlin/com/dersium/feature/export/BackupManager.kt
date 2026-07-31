@@ -2,7 +2,6 @@ package com.dersium.feature.export
 
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -12,14 +11,14 @@ import java.time.format.DateTimeFormatter
 object BackupManager {
     private const val DB_NAME = "dersium.db"
 
+    private fun backupDir(context: Context): File =
+        File(context.getExternalFilesDir(null) ?: context.filesDir, "Backups").also { it.mkdirs() }
+
     fun exportBackup(context: Context): Result<File> = runCatching {
         val dbFile = context.getDatabasePath(DB_NAME)
         if (!dbFile.exists()) error("Veritabani bulunamadi")
-        val dir = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dersium"
-        ).also { it.mkdirs() }
         val ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
-        val backup = File(dir, "dersium_yedek_$ts.db")
+        val backup = File(backupDir(context), "dersium_yedek_$ts.db")
         FileInputStream(dbFile).use { i -> FileOutputStream(backup).use { o -> i.copyTo(o) } }
         backup
     }
@@ -33,11 +32,7 @@ object BackupManager {
         } ?: error("Dosya acilamadi")
     }
 
-    fun listBackups(context: Context): List<File> {
-        val dir = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dersium"
-        )
-        return dir.listFiles { f -> f.extension == "db" }
+    fun listBackups(context: Context): List<File> =
+        backupDir(context).listFiles { f -> f.extension == "db" }
             ?.sortedByDescending { it.lastModified() } ?: emptyList()
-    }
 }

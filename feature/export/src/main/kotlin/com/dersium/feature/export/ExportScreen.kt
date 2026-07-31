@@ -86,7 +86,7 @@ fun ExportScreen(
                         icon = Icons.Default.Upload,
                         iconColor = DersiumColors.Income,
                         title = "Yedek Al",
-                        subtitle = "Downloads/Dersium/ klasorune kaydedilir",
+                        subtitle = "Uygulama icinde guvenle saklanir",
                         btnLabel = "Yedekle",
                         btnColor = DersiumColors.Income,
                         isLoading = state.isLoading,
@@ -136,8 +136,7 @@ fun ExportScreen(
                         }
                         listOf(
                             "PDF olusturulunca paylasma menusu acar",
-                            "Yedekler Downloads/Dersium/ klasorune kaydedilir",
-                            "Yedekleri paylas ikonuyla Drive, E-posta vb. yerlere gonderebilirsiniz",
+                            "Yedekler uygulama icinde saklanir, paylas ikonuyla Drive, E-posta vb. yerlere gonderebilirsiniz",
                             "Geri yukleme mevcut tum verilerin uzerine yazar",
                             "Duzenli yedek almayi unutmayin!",
                         ).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }
