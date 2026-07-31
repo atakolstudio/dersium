@@ -21,42 +21,6 @@ object NotificationHelper {
         manager.createNotificationChannel(channel)
     }
 
-    fun showLessonReminder(
-        context: Context,
-        studentName: String,
-        time: String,
-        notificationId: Int = 1,
-    ) {
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Ders Hatırlatması")
-            .setContentText("$studentName ile $time'da dersiniz var!")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        val manager = context.getSystemService(NotificationManager::class.java)
-        manager.notify(notificationId, notification)
-    }
-
-    fun showPaymentReminder(
-        context: Context,
-        studentName: String,
-        amount: String,
-        notificationId: Int = 2,
-    ) {
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Ödeme Hatırlatması")
-            .setContentText("$studentName için $amount bekleyen ödeme var!")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .build()
-
-        val manager = context.getSystemService(NotificationManager::class.java)
-        manager.notify(notificationId, notification)
-    }
-
     fun showDigestNotification(
         context: Context,
         title: String,
@@ -64,7 +28,7 @@ object NotificationHelper {
         notificationId: Int,
     ) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))

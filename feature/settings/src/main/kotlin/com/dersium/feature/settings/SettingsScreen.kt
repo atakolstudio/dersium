@@ -1,5 +1,7 @@
 package com.dersium.feature.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -263,10 +266,28 @@ fun SettingsScreen(
 
         item { SectionHeader("Hakkında", Icons.Default.Info) }
         item {
+            val context = LocalContext.current
+            val versionName = remember {
+                try { context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "-" }
+                catch (_: Exception) { "-" }
+            }
             SettingCard {
-                SettingRow(icon = Icons.Default.Info, iconColor = DersiumColors.TextSecondary, title = "Uygulama Versiyonu", subtitle = "1.0.0")
+                SettingRow(icon = Icons.Default.Info, iconColor = DersiumColors.TextSecondary, title = "Uygulama Versiyonu", subtitle = versionName)
                 HorizontalDivider(color = DersiumColors.Outline)
-                SettingRow(icon = Icons.Default.Email, iconColor = DersiumColors.TextSecondary, title = "Destek", subtitle = "support@dersium.app")
+                SettingRow(
+                    icon = Icons.Default.Email,
+                    iconColor = DersiumColors.TextSecondary,
+                    title = "Destek",
+                    subtitle = "support@dersium.app",
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:support@dersium.app")
+                            putExtra(Intent.EXTRA_SUBJECT, "Dersium Destek")
+                        }
+                        try { context.startActivity(intent) } catch (_: Exception) {}
+                    },
+                    trailing = { Icon(Icons.Default.ChevronRight, null, tint = DersiumColors.TextTertiary) },
+                )
             }
         }
     }
