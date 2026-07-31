@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.ui.theme.DersiumColors
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,9 +34,11 @@ fun ExportScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var restoreTarget by remember { mutableStateOf<File?>(null) }
+    var deleteTarget by remember { mutableStateOf<File?>(null) }
 
     val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
+        ActivityResultContracts.OpenDocument()
     ) { uri: Uri? -> uri?.let { viewModel.importBackup(it) } }
 
     LaunchedEffect(state.message) {
@@ -96,12 +99,12 @@ fun ExportScreen(
                     ExportRow(
                         icon = Icons.Default.Download,
                         iconColor = DersiumColors.Primary,
-                        title = "Yedek Geri Yukle",
-                        subtitle = ".db dosyasi secin — mevcut veriler silinir!",
+                        title = "Disaridan Yedek Yukle",
+                        subtitle = "Baska yerden .db dosyasi secin — mevcut veriler silinir!",
                         btnLabel = "Sec & Yukle",
                         btnColor = DersiumColors.Pending,
                         isLoading = state.isLoading,
-                        onClick = { importLauncher.launch("*/*") },
+                        onClick = { importLauncher.launch(arrayOf("*/*")) },
                     )
                 }
             }
@@ -110,17 +113,23 @@ fun ExportScreen(
                 item { Spacer(Modifier.height(4.dp)); SectionTitle("Mevcut Yedekler", Icons.Default.Folder, DersiumColors.TextSecondary) }
                 items(state.backupList) { file ->
                     Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = DersiumColors.SurfaceVariant) {
-                        Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(Icons.Default.Storage, null, tint = DersiumColors.TextSecondary, modifier = Modifier.size(20.dp))
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
                                 Text(file.name, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Medium)
                                 Text(
                                     "${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(file.lastModified()))} · ${file.length()/1024}KB",
                                     style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary,
                                 )
                             }
+                            IconButton(onClick = { restoreTarget = file }) {
+                                Icon(Icons.Default.SettingsBackupRestore, contentDescription = "Bu yedegi geri yukle", tint = DersiumColors.Pending, modifier = Modifier.size(20.dp))
+                            }
                             IconButton(onClick = { viewModel.shareBackupFile(file) }) {
                                 Icon(Icons.Default.Share, contentDescription = "Yedegi paylas", tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
+                            }
+                            IconButton(onClick = { deleteTarget = file }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Yedegi sil", tint = DersiumColors.Expense, modifier = Modifier.size(20.dp))
                             }
                         }
                     }
@@ -137,13 +146,45 @@ fun ExportScreen(
                         listOf(
                             "PDF olusturulunca paylasma menusu acar",
                             "Yedekler uygulama icinde saklanir, paylas ikonuyla Drive, E-posta vb. yerlere gonderebilirsiniz",
+                            "Mevcut Yedekler listesindeki geri yukle ikonuyla dogrudan o yedege donebilirsiniz",
                             "Geri yukleme mevcut tum verilerin uzerine yazar",
+                            "Kullanmadiginiz eski yedekleri silme ikonuyla kaldirabilirsiniz",
                             "Duzenli yedek almayi unutmayin!",
                         ).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary) }
                     }
                 }
             }
         }
+    }
+
+    restoreTarget?.let { file ->
+        AlertDialog(
+            onDismissRequest = { restoreTarget = null },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Yedegi geri yukle?", color = DersiumColors.TextPrimary) },
+            text = { Text("${file.name} yuklenecek. Mevcut tum veriler silinip bu yedegin verileriyle degistirilecek. Bu islem geri alinamaz.", color = DersiumColors.TextSecondary) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.restoreBackup(file); restoreTarget = null }) { Text("Geri Yukle", color = DersiumColors.Pending) }
+            },
+            dismissButton = {
+                TextButton(onClick = { restoreTarget = null }) { Text("Iptal") }
+            },
+        )
+    }
+
+    deleteTarget?.let { file ->
+        AlertDialog(
+            onDismissRequest = { deleteTarget = null },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Yedegi sil?", color = DersiumColors.TextPrimary) },
+            text = { Text("${file.name} kalici olarak silinecek.", color = DersiumColors.TextSecondary) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.deleteBackup(file); deleteTarget = null }) { Text("Sil", color = DersiumColors.Expense) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteTarget = null }) { Text("Iptal") }
+            },
+        )
     }
 }
 
