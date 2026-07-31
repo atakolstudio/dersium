@@ -174,13 +174,17 @@ fun AddEditLessonScreen(
 
             Text("Ödeme Durumu", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextSecondary)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(PaymentStatus.PENDING, PaymentStatus.PAID).forEach { s ->
+                listOf(PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.CANCELLED).forEach { s ->
                     FilterChip(
                         selected = state.paymentStatus == s,
                         onClick = { viewModel.onPaymentStatusChange(s) },
                         label = { Text(s.displayName) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = if (s == PaymentStatus.PAID) DersiumColors.Income else DersiumColors.Primary,
+                            selectedContainerColor = when (s) {
+                                PaymentStatus.PAID -> DersiumColors.Income
+                                PaymentStatus.CANCELLED -> DersiumColors.Expense
+                                else -> DersiumColors.Primary
+                            },
                             selectedLabelColor = Color.White,
                         ),
                     )

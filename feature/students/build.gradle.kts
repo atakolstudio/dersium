@@ -40,4 +40,6 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.coroutines.android)
+    implementation(libs.zxing.core)
+    implementation(libs.play.services.code.scanner)
 }
