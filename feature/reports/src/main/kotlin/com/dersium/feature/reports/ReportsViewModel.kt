@@ -16,13 +16,14 @@ import javax.inject.Inject
 
 enum class ReportTab(val label: String) {
     STUDENT("Öğrenci"), AVERAGE("Ortalama"), MONTHLY("Aylık"),
-    ACTIVE("Aktif"), PAYMENT("Ödeme"), PENDING("Bekleyen"), DAILY("Günlük"), SEASON("Sezon")
+    ACTIVE("Aktif"), PAYMENT("Ödeme"), PENDING("Bekleyen"), DAILY("Günlük"), SEASON("Sezon"), EXPENSES("Gider/Kâr")
 }
 
 data class StudentIncome(val student: Student, val totalIncome: Double, val lessonCount: Int, val paidAmount: Double)
 data class MonthlyData(val month: String, val lessonCount: Int, val income: Double, val changePercent: Double? = null)
 data class DayData(val day: String, val dayOfWeek: DayOfWeek, val lessonCount: Int, val income: Double)
 data class SeasonStats(val season: Season, val lessonCount: Int, val totalIncome: Double, val paidAmount: Double, val pendingAmount: Double, val studentCount: Int, val avgPerLesson: Double, val collectionRate: Double, val isActive: Boolean)
+data class CategoryAmount(val label: String, val icon: String, val amount: Double)
 
 @Immutable
 data class ReportsUiState(
@@ -45,6 +46,11 @@ data class ReportsUiState(
     val activeSeasonName: String = "",
     val allSeasonStats: List<SeasonStats> = emptyList(),
     val currency: String = "₺",
+    val totalExpenses: Double = 0.0,
+    val totalExtraIncome: Double = 0.0,
+    val netProfit: Double = 0.0,
+    val expenseByCategory: List<CategoryAmount> = emptyList(),
+    val extraIncomeByCategory: List<CategoryAmount> = emptyList(),
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -64,8 +70,21 @@ class ReportsViewModel @Inject constructor(
                 studentRepository.getAllStudents(seasonId),
                 lessonRepository.getAllLessonsAllSeasons(),
                 financialRepository.getAllSeasons(),
+                financialRepository.getAllExpenses(seasonId),
+                financialRepository.getAllExtraIncomes(seasonId),
                 _tab,
-            ) { students, allLessons, allSeasons, tab ->
+            ) { values ->
+                @Suppress("UNCHECKED_CAST")
+                val students = values[0] as List<Student>
+                @Suppress("UNCHECKED_CAST")
+                val allLessons = values[1] as List<Lesson>
+                @Suppress("UNCHECKED_CAST")
+                val allSeasons = values[2] as List<Season>
+                @Suppress("UNCHECKED_CAST")
+                val expenses = values[3] as List<Expense>
+                @Suppress("UNCHECKED_CAST")
+                val extraIncomes = values[4] as List<ExtraIncome>
+                val tab = values[5] as ReportTab
                 val lessons = allLessons.filter { it.seasonId == seasonId }
                 val paid = lessons.filter { it.isPaid }
                 val pending = lessons.filter { !it.isPaid }
@@ -103,6 +122,15 @@ class ReportsViewModel @Inject constructor(
                         if (sp+su > 0) (sp/(sp+su)*100) else 0.0, season.id == seasonId)
                 }.sortedByDescending { it.season.startYear }
 
+                val totalExpenses = expenses.sumOf { it.amount }
+                val totalExtraIncome = extraIncomes.sumOf { it.amount }
+                val expenseByCategory = expenses.groupBy { it.category }
+                    .map { (cat, list) -> CategoryAmount(cat.displayName, cat.icon, list.sumOf { it.amount }) }
+                    .sortedByDescending { it.amount }
+                val extraIncomeByCategory = extraIncomes.groupBy { it.category }
+                    .map { (cat, list) -> CategoryAmount(cat.displayName, cat.icon, list.sumOf { it.amount }) }
+                    .sortedByDescending { it.amount }
+
                 ReportsUiState(
                     tab = tab, studentIncomes = studentIncomes,
                     averagePerLesson = if (paid.isNotEmpty()) paidAmt / paid.size else 0.0,
@@ -116,6 +144,9 @@ class ReportsViewModel @Inject constructor(
                     dayData = dayData, bestDay = dayData.maxByOrNull { it.income },
                     activeSeasonName = allSeasons.find { it.id == seasonId }?.displayName ?: "",
                     allSeasonStats = allSeasonStats, currency = prefs.currency,
+                    totalExpenses = totalExpenses, totalExtraIncome = totalExtraIncome,
+                    netProfit = paidAmt + totalExtraIncome - totalExpenses,
+                    expenseByCategory = expenseByCategory, extraIncomeByCategory = extraIncomeByCategory,
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReportsUiState())
