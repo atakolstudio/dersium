@@ -47,6 +47,7 @@ fun StudentDetailScreen(
 
     var showParentDialog by remember { mutableStateOf(false) }
     var showMessageDialog by remember { mutableStateOf(false) }
+    var showGenerateDialog by remember { mutableStateOf(false) }
     var selectedParent by remember { mutableStateOf("anne") }
     var editableMessage by remember { mutableStateOf("") }
 
@@ -160,13 +161,57 @@ fun StudentDetailScreen(
         }
     }
 
+    if (showGenerateDialog && student != null) {
+        AlertDialog(
+            onDismissRequest = { showGenerateDialog = false },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Sezon icin ders olustur?", color = DersiumColors.TextPrimary) },
+            text = {
+                Text(
+                    "${student.fullName} icin profildeki haftalik programa gore, sezon sonuna kadar eksik olan tum dersler otomatik olusturulacak. Zaten var olan tarihler atlanir.",
+                    color = DersiumColors.TextSecondary,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.generateSeasonLessons(); showGenerateDialog = false }) { Text("Olustur", color = DersiumColors.Primary) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showGenerateDialog = false }) { Text("Iptal") }
+            },
+        )
+    }
+
+    state.generatedCount?.let { count ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearGeneratedMessage,
+            containerColor = DersiumColors.Surface,
+            title = { Text(if (count > 0) "Hazir!" else "Yapilacak bir sey yok", color = DersiumColors.TextPrimary) },
+            text = {
+                Text(
+                    if (count > 0) "$count yeni ders olusturuldu." else "Sezon sonuna kadar programdaki tum dersler zaten mevcut.",
+                    color = DersiumColors.TextSecondary,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearGeneratedMessage) { Text("Tamam", color = DersiumColors.Primary) }
+            },
+        )
+    }
+
     Scaffold(
         containerColor = DersiumColors.Background,
         topBar = {
             TopAppBar(
                 title = { Text(student?.fullName ?: "", color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = DersiumColors.TextPrimary) } },
-                actions = { IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) } },
+                actions = {
+                    if (student != null && student.scheduleSlots.isNotEmpty()) {
+                        IconButton(onClick = { showGenerateDialog = true }) {
+                            Icon(Icons.Default.EventRepeat, contentDescription = "Sezon icin ders olustur", tint = DersiumColors.TextSecondary)
+                        }
+                    }
+                    IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DersiumColors.Background),
             )
         },
