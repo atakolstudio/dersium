@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +22,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,8 +169,41 @@ fun AddEditLessonScreen(
                 }
             }
 
-            HorizontalDivider(color = DersiumColors.Outline)
+            if (!state.isEditMode) {
+                HorizontalDivider(color = DersiumColors.Outline)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("Her hafta tekrarla", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary)
+                        Text("Aynı gün/saatte birden fazla hafta ders olusturur", style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary)
+                    }
+                    Switch(
+                        checked = state.isRecurring,
+                        onCheckedChange = viewModel::onRecurringToggle,
+                        colors = SwitchDefaults.colors(checkedTrackColor = DersiumColors.Primary),
+                    )
+                }
+                if (state.isRecurring) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        IconButton(onClick = { viewModel.onRecurringWeeksChange(state.recurringWeeks - 1) }) {
+                            Icon(Icons.Default.RemoveCircleOutline, null, tint = DersiumColors.Primary)
+                        }
+                        Text("${state.recurringWeeks} hafta", style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { viewModel.onRecurringWeeksChange(state.recurringWeeks + 1) }) {
+                            Icon(Icons.Default.AddCircleOutline, null, tint = DersiumColors.Primary)
+                        }
+                        Text(
+                            "(${state.date.format(DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("tr")))} — ${state.date.plusWeeks((state.recurringWeeks - 1).toLong()).format(DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("tr")))})",
+                            style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary,
+                        )
+                    }
+                }
+            }
 
+            HorizontalDivider(color = DersiumColors.Outline)
             DersiumTextField(value = state.topic, onValueChange = viewModel::onTopicChange, label = "Konu", leadingIcon = Icons.Default.Book)
             DersiumTextField(value = state.notes, onValueChange = viewModel::onNotesChange, label = "Notlar", singleLine = false, maxLines = 3, leadingIcon = Icons.Default.Notes)
 

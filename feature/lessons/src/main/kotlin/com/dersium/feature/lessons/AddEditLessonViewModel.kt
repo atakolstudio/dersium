@@ -32,6 +32,8 @@ data class AddEditLessonUiState(
     val isEditMode: Boolean = false,
     val isSaved: Boolean = false,
     val activeSeasonId: Long = 1L,
+    val isRecurring: Boolean = false,
+    val recurringWeeks: Int = 8,
 )
 
 @HiltViewModel
@@ -109,6 +111,8 @@ class AddEditLessonViewModel @Inject constructor(
     fun onTopicChange(v: String) = _state.update { it.copy(topic = v) }
     fun onNotesChange(v: String) = _state.update { it.copy(notes = v) }
     fun onPaymentStatusChange(s: PaymentStatus) = _state.update { it.copy(paymentStatus = s) }
+    fun onRecurringToggle(enabled: Boolean) = _state.update { it.copy(isRecurring = enabled) }
+    fun onRecurringWeeksChange(weeks: Int) = _state.update { it.copy(recurringWeeks = weeks.coerceIn(2, 26)) }
 
     fun save() {
         val s = _state.value
@@ -126,8 +130,15 @@ class AddEditLessonViewModel @Inject constructor(
                 paymentStatus = s.paymentStatus,
                 seasonId = s.activeSeasonId,
             )
-            if (s.isEditMode) lessonRepository.updateLesson(lesson)
-            else lessonRepository.insertLesson(lesson)
+            if (s.isEditMode) {
+                lessonRepository.updateLesson(lesson)
+            } else if (s.isRecurring) {
+                repeat(s.recurringWeeks) { i ->
+                    lessonRepository.insertLesson(lesson.copy(date = lesson.date.plusWeeks(i.toLong())))
+                }
+            } else {
+                lessonRepository.insertLesson(lesson)
+            }
             _state.update { it.copy(isSaved = true) }
         }
     }
