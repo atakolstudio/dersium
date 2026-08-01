@@ -2,7 +2,6 @@ package com.dersium.feature.students
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,9 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import com.dersium.core.common.shareViaWhatsAppOrSheet
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +40,6 @@ fun StudentDetailScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var showQrDialog by remember { mutableStateOf(false) }
     LaunchedEffect(studentId) { viewModel.loadStudent(studentId) }
 
     val student = state.student
@@ -164,41 +160,13 @@ fun StudentDetailScreen(
         }
     }
 
-    // QR code dialog — quick way to jump straight to this student by scanning
-    if (showQrDialog && student != null) {
-        Dialog(onDismissRequest = { showQrDialog = false }) {
-            Surface(shape = RoundedCornerShape(20.dp), color = DersiumColors.Surface, modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text("Öğrenci Kodu", style = MaterialTheme.typography.titleLarge, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
-                    Text(student.fullName, style = MaterialTheme.typography.bodyMedium, color = DersiumColors.TextSecondary)
-                    Surface(shape = RoundedCornerShape(12.dp), color = Color.White, modifier = Modifier.padding(8.dp)) {
-                        val qrBitmap = remember(studentId) { generateQrCodeBitmap(studentQrContent(studentId)) }
-                        Image(bitmap = qrBitmap, contentDescription = "QR kodu", modifier = Modifier.size(220.dp).padding(16.dp))
-                    }
-                    Text(
-                        "Öğrenciler ekranındaki QR Tara ile bu kodu okutarak dogrudan profile gelebilirsiniz",
-                        style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextTertiary, textAlign = TextAlign.Center,
-                    )
-                    TextButton(onClick = { showQrDialog = false }) { Text("Kapat", color = DersiumColors.Primary) }
-                }
-            }
-        }
-    }
-
     Scaffold(
         containerColor = DersiumColors.Background,
         topBar = {
             TopAppBar(
                 title = { Text(student?.fullName ?: "", color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = DersiumColors.TextPrimary) } },
-                actions = {
-                    IconButton(onClick = { showQrDialog = true }) { Icon(Icons.Default.QrCode2, null, tint = DersiumColors.TextSecondary) }
-                    IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) }
-                },
+                actions = { IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DersiumColors.Background),
             )
         },
