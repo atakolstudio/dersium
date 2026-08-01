@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,9 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dersium.core.domain.model.Student
 import com.dersium.core.ui.components.*
 import com.dersium.core.ui.theme.DersiumColors
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -36,7 +32,6 @@ fun StudentsScreen(
     viewModel: StudentsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize().background(DersiumColors.Background)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -63,23 +58,8 @@ fun StudentsScreen(
                         color = DersiumColors.TextSecondary,
                     )
                 }
-                Row {
-                    IconButton(onClick = {
-                        val scanner = GmsBarcodeScanning.getClient(
-                            context,
-                            GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build(),
-                        )
-                        scanner.startScan()
-                            .addOnSuccessListener { barcode ->
-                                val id = parseStudentQr(barcode.rawValue)
-                                if (id != null) onStudentClick(id)
-                            }
-                    }) {
-                        Icon(Icons.Default.QrCodeScanner, null, tint = DersiumColors.TextSecondary)
-                    }
-                    IconButton(onClick = viewModel::toggleActiveFilter) {
-                        Icon(Icons.Default.FilterList, null, tint = DersiumColors.TextSecondary)
-                    }
+                IconButton(onClick = viewModel::toggleActiveFilter) {
+                    Icon(Icons.Default.FilterList, null, tint = DersiumColors.TextSecondary)
                 }
             }
 
