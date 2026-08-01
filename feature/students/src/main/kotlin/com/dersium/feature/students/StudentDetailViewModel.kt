@@ -23,6 +23,7 @@ data class StudentDetailUiState(
     val lessons: List<Lesson> = emptyList(),
     val paidAmount: Double = 0.0,
     val pendingAmount: Double = 0.0,
+    val pendingLessonCount: Int = 0,
     val generatedCount: Int? = null,
 )
 
@@ -47,6 +48,7 @@ class StudentDetailViewModel @Inject constructor(
                     lessons = lessons.sortedByDescending { it.date },
                     paidAmount = lessons.filter { it.isPaid }.sumOf { it.fee },
                     pendingAmount = lessons.filter { !it.isPaid }.sumOf { it.fee },
+                    pendingLessonCount = lessons.count { !it.isPaid },
                 )
             }.collect { s -> _uiState.update { s.copy(generatedCount = it.generatedCount) } }
         }
