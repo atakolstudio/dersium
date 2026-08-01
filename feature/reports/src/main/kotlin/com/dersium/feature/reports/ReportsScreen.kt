@@ -64,6 +64,7 @@ fun ReportsScreen(viewModel: ReportsViewModel = hiltViewModel()) {
                             ReportTab.PENDING -> PendingReport(state)
                             ReportTab.DAILY   -> DailyReport(state)
                             ReportTab.SEASON  -> SeasonReport(state)
+                            ReportTab.EXPENSES -> ExpenseProfitReport(state)
                         }
                     }
                 }
@@ -350,6 +351,68 @@ private fun SeasonReport(state: ReportsUiState) {
                     }
                 }
                 Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpenseProfitReport(state: ReportsUiState) {
+    val isProfit = state.netProfit >= 0
+    val profitColor = if (isProfit) DersiumColors.Income else DersiumColors.Expense
+    ReportCard("Gider & Kâr Özeti", state.activeSeasonName, Icons.Default.AccountBalanceWallet) {
+        Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = profitColor.copy(alpha = 0.12f)) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(if (isProfit) "Net Kâr" else "Net Zarar", style = MaterialTheme.typography.bodyMedium, color = DersiumColors.TextSecondary)
+                Text(kotlin.math.abs(state.netProfit).fmt(state.currency), style = MaterialTheme.typography.headlineMedium, color = profitColor, fontWeight = FontWeight.Bold)
+                Text(
+                    "Ders geliri ${state.totalIncome.fmt(state.currency)} + Ek gelir ${state.totalExtraIncome.fmt(state.currency)} − Gider ${state.totalExpenses.fmt(state.currency)}",
+                    style = MaterialTheme.typography.labelSmall, color = DersiumColors.TextSecondary,
+                )
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+
+        Text("Giderler (${state.totalExpenses.fmt(state.currency)})", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(6.dp))
+        if (state.expenseByCategory.isEmpty()) {
+            Text("Bu sezon gider girilmemiş", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+        } else {
+            val maxExpense = state.expenseByCategory.maxOf { it.amount }
+            state.expenseByCategory.forEach { cat ->
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Text(cat.label, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary)
+                        Text(cat.amount.fmt(state.currency), style = MaterialTheme.typography.bodySmall, color = DersiumColors.Expense, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    LinearProgressIndicator(
+                        progress = { (cat.amount / maxExpense).toFloat() },
+                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                        color = DersiumColors.Expense, trackColor = DersiumColors.Outline,
+                    )
+                }
+            }
+        }
+
+        if (state.extraIncomeByCategory.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+            Text("Ek Gelirler (${state.totalExtraIncome.fmt(state.currency)})", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(6.dp))
+            val maxIncome = state.extraIncomeByCategory.maxOf { it.amount }
+            state.extraIncomeByCategory.forEach { cat ->
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Text(cat.label, style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary)
+                        Text(cat.amount.fmt(state.currency), style = MaterialTheme.typography.bodySmall, color = DersiumColors.Income, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    LinearProgressIndicator(
+                        progress = { (cat.amount / maxIncome).toFloat() },
+                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                        color = DersiumColors.Income, trackColor = DersiumColors.Outline,
+                    )
+                }
             }
         }
     }
