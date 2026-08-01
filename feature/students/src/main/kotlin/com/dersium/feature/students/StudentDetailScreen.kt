@@ -277,7 +277,11 @@ fun StudentDetailScreen(
                 }
             }
 
-            if (state.pendingAmount > 0) {
+            val showPaymentBanner = when (student?.paymentType) {
+                PaymentType.AFTER_CERTAIN_LESSONS -> state.pendingLessonCount >= student.lessonCountForPayment
+                else -> state.pendingAmount > 0
+            }
+            if (showPaymentBanner) {
                 item {
                     Surface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), shape = RoundedCornerShape(16.dp), color = Color(0xFF1A2E1A)) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -286,7 +290,7 @@ fun StudentDetailScreen(
                                 Text(
                                     when (student.paymentType) {
                                         PaymentType.MONTHLY -> "Bu ay ödeme zamanı!"
-                                        PaymentType.AFTER_CERTAIN_LESSONS -> "${state.lessons.size} ders tamamlandı!"
+                                        PaymentType.AFTER_CERTAIN_LESSONS -> "${state.pendingLessonCount}/${student.lessonCountForPayment} ders tamamlandı, ödeme zamanı!"
                                         else -> "Bekleyen ödeme var"
                                     },
                                     style = MaterialTheme.typography.titleSmall, color = DersiumColors.Pending, fontWeight = FontWeight.Bold,
