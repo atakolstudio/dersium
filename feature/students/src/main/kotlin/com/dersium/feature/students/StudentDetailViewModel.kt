@@ -110,4 +110,13 @@ class StudentDetailViewModel @Inject constructor(
     }
 
     fun clearGeneratedMessage() = _uiState.update { it.copy(generatedCount = null) }
+
+    fun deleteStudent(onDeleted: () -> Unit) {
+        val student = _uiState.value.student ?: return
+        viewModelScope.launch {
+            lessonRepository.deleteLessonsByStudent(student.id)
+            studentRepository.deleteStudent(student)
+            onDeleted()
+        }
+    }
 }

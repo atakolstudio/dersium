@@ -53,6 +53,9 @@ class LessonRepositoryImpl @Inject constructor(
     override suspend fun deleteLesson(lesson: Lesson) =
         lessonDao.deleteLesson(lesson.toEntity())
 
+    override suspend fun deleteLessonsByStudent(studentId: Long) =
+        lessonDao.deleteLessonsByStudent(studentId)
+
     override suspend fun updatePaymentStatus(lessonId: Long, status: PaymentStatus) =
         lessonDao.updatePaymentStatus(lessonId, status.name)
 

@@ -38,6 +38,9 @@ interface LessonDao {
     @Delete
     suspend fun deleteLesson(lesson: LessonEntity)
 
+    @Query("DELETE FROM lessons WHERE studentId = :studentId")
+    suspend fun deleteLessonsByStudent(studentId: Long)
+
     @Query("UPDATE lessons SET paymentStatus = :status WHERE id = :lessonId")
     suspend fun updatePaymentStatus(lessonId: Long, status: String)
 
