@@ -48,6 +48,7 @@ fun StudentDetailScreen(
     var showParentDialog by remember { mutableStateOf(false) }
     var showMessageDialog by remember { mutableStateOf(false) }
     var showGenerateDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedParent by remember { mutableStateOf("anne") }
     var editableMessage by remember { mutableStateOf("") }
 
@@ -198,6 +199,26 @@ fun StudentDetailScreen(
         )
     }
 
+    if (showDeleteDialog && student != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = DersiumColors.Surface,
+            title = { Text("${student.fullName} silinsin mi?", color = DersiumColors.TextPrimary) },
+            text = {
+                Text(
+                    "Bu öğrenci ve tüm ders geçmişi (${state.lessons.size} ders) kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+                    color = DersiumColors.TextSecondary,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.deleteStudent(onBack) }) { Text("Sil", color = DersiumColors.Expense, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("İptal") }
+            },
+        )
+    }
+
     Scaffold(
         containerColor = DersiumColors.Background,
         topBar = {
@@ -211,6 +232,7 @@ fun StudentDetailScreen(
                         }
                     }
                     IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) }
+                    IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Öğrenciyi sil", tint = DersiumColors.Expense) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DersiumColors.Background),
             )

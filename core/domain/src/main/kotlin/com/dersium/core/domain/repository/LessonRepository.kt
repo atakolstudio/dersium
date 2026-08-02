@@ -16,6 +16,7 @@ interface LessonRepository {
     suspend fun insertLesson(lesson: Lesson): Long
     suspend fun updateLesson(lesson: Lesson)
     suspend fun deleteLesson(lesson: Lesson)
+    suspend fun deleteLessonsByStudent(studentId: Long)
     suspend fun updatePaymentStatus(lessonId: Long, status: PaymentStatus)
     fun getMonthlyLessonStats(seasonId: Long): Flow<Map<String, Pair<Int, Double>>>
 }

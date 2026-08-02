@@ -88,5 +88,10 @@ class StudentsViewModel @Inject constructor(
 
     fun onSearchQueryChange(q: String) { _searchQuery.value = q }
     fun toggleActiveFilter() { _showOnlyActive.update { !it } }
-    fun deleteStudent(student: Student) { viewModelScope.launch { studentRepository.deleteStudent(student) } }
+    fun deleteStudent(student: Student) {
+        viewModelScope.launch {
+            lessonRepository.deleteLessonsByStudent(student.id)
+            studentRepository.deleteStudent(student)
+        }
+    }
 }
