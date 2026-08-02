@@ -2,6 +2,7 @@ package com.dersium.feature.lessons
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -205,6 +207,11 @@ fun AddEditLessonScreen(
 
             HorizontalDivider(color = DersiumColors.Outline)
             DersiumTextField(value = state.topic, onValueChange = viewModel::onTopicChange, label = "Konu", leadingIcon = Icons.Default.Book)
+            DersiumTextField(
+                value = state.fee, onValueChange = viewModel::onFeeChange, label = "Ders Ücreti",
+                leadingIcon = Icons.Default.Payments,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
             DersiumTextField(value = state.notes, onValueChange = viewModel::onNotesChange, label = "Notlar", singleLine = false, maxLines = 3, leadingIcon = Icons.Default.Notes)
 
             Text("Ödeme Durumu", style = MaterialTheme.typography.titleSmall, color = DersiumColors.TextSecondary)
