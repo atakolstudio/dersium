@@ -22,7 +22,7 @@ sealed interface Screen {
 
     // Detail / add screens (no bottom bar)
     @Serializable data object Settings : Screen
-    @Serializable data object Export : Screen
+    @Serializable data class Export(val studentId: Long? = null) : Screen
     @Serializable data object PrivacyPolicy : Screen
 
     @Serializable data class StudentDetail(val studentId: Long) : Screen

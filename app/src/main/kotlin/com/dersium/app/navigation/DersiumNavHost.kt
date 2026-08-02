@@ -151,7 +151,7 @@ fun DersiumNavHost(
 
             // ── Detail / edit screens ─────────────────────────────────────────
             composable<Screen.Settings> {
-                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export) }, onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy) })
+                SettingsScreen(onBack = { navController.popBackStack() }, onExport = { navController.navigate(Screen.Export()) }, onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy) })
             }
 
             composable<Screen.StudentDetail> { backStackEntry ->
@@ -161,6 +161,7 @@ fun DersiumNavHost(
                     onBack     = { navController.popBackStack() },
                     onEdit     = { navController.navigate(Screen.AddEditStudent(args.studentId)) },
                     onAddLesson = { navController.navigate(Screen.AddEditLesson(studentId = args.studentId)) },
+                    onExportPdf = { navController.navigate(Screen.Export(studentId = args.studentId)) },
                 )
             }
 
@@ -181,8 +182,9 @@ fun DersiumNavHost(
                 )
             }
 
-            composable<Screen.Export> {
-                ExportScreen(onBack = { navController.popBackStack() })
+            composable<Screen.Export> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.Export>()
+                ExportScreen(onBack = { navController.popBackStack() }, studentId = args.studentId)
             }
 
             composable<Screen.PrivacyPolicy> {
