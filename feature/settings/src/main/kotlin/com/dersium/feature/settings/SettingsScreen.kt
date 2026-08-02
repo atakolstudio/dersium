@@ -296,10 +296,26 @@ fun SettingsScreen(
     if (showNewSeasonDialog) {
         NewSeasonDialog(
             onDismiss = { showNewSeasonDialog = false },
-            onConfirm = { startYear, endYear ->
-                viewModel.createNewSeason("$startYear-$endYear", startYear, endYear)
+            onConfirm = { startYear, endYear, carryOver ->
+                viewModel.createNewSeason("$startYear-$endYear", startYear, endYear, carryOver)
                 showNewSeasonDialog = false
             },
+        )
+    }
+
+    val carriedOverCount by viewModel.carriedOverCount.collectAsStateWithLifecycle()
+    carriedOverCount?.let { count ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearCarriedOverMessage,
+            containerColor = DersiumColors.Surface,
+            title = { Text("Yeni sezon oluşturuldu", color = DersiumColors.TextPrimary) },
+            text = {
+                Text(
+                    if (count > 0) "$count aktif öğrenci yeni sezona kopyalandı." else "Kopyalanacak aktif öğrenci bulunamadı.",
+                    color = DersiumColors.TextSecondary,
+                )
+            },
+            confirmButton = { TextButton(onClick = viewModel::clearCarriedOverMessage) { Text("Tamam", color = DersiumColors.Primary) } },
         )
     }
 
@@ -318,11 +334,12 @@ fun SettingsScreen(
 @Composable
 private fun NewSeasonDialog(
     onDismiss: () -> Unit,
-    onConfirm: (Int, Int) -> Unit,
+    onConfirm: (Int, Int, Boolean) -> Unit,
 ) {
     var startYear by remember { mutableStateOf("2025") }
     var endYear by remember { mutableStateOf("2026") }
     var error by remember { mutableStateOf<String?>(null) }
+    var carryOver by remember { mutableStateOf(true) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -394,6 +411,22 @@ private fun NewSeasonDialog(
                     }
                 }
 
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { carryOver = !carryOver },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Checkbox(
+                        checked = carryOver,
+                        onCheckedChange = { carryOver = it },
+                        colors = CheckboxDefaults.colors(checkedColor = DersiumColors.Primary),
+                    )
+                    Text("Aktif öğrencileri yeni sezona kopyala", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextPrimary)
+                }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = onDismiss,
@@ -409,7 +442,7 @@ private fun NewSeasonDialog(
                                 sy2 == null || ey2 == null -> error = "Geçerli yıl girin"
                                 ey2 <= sy2 -> error = "Bitiş yılı başlangıçtan büyük olmalı"
                                 sy2 < 2000 || sy2 > 2100 -> error = "Geçerli bir yıl girin"
-                                else -> onConfirm(sy2, ey2)
+                                else -> onConfirm(sy2, ey2, carryOver)
                             }
                         },
                         modifier = Modifier.weight(1f),
