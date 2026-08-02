@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dersium.core.domain.model.Season
 import com.dersium.core.domain.model.ThemeAccentColor
 import com.dersium.core.domain.repository.FinancialRepository
+import com.dersium.core.domain.repository.StudentRepository
 import com.dersium.core.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -39,6 +40,7 @@ enum class PinSetupStep { ENTER_NEW, CONFIRM }
 class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val financialRepository: FinancialRepository,
+    private val studentRepository: StudentRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -63,6 +65,11 @@ class SettingsViewModel @Inject constructor(
     // PIN setup state (ephemeral)
     private val _pinState = MutableStateFlow(PinSetupData())
     val pinState: StateFlow<PinSetupData> = _pinState.asStateFlow()
+
+    // One-shot result message after carrying students over to a new season
+    private val _carriedOverCount = MutableStateFlow<Int?>(null)
+    val carriedOverCount: StateFlow<Int?> = _carriedOverCount.asStateFlow()
+    fun clearCarriedOverMessage() { _carriedOverCount.value = null }
 
     fun showPinSetup() { _pinState.update { PinSetupData(isVisible = true) } }
     fun hidePinSetup() { _pinState.update { PinSetupData() } }
@@ -104,8 +111,9 @@ class SettingsViewModel @Inject constructor(
     fun setDailyReminderEnabled(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setDailyReminderEnabled(enabled) } }
     fun setCurrency(currency: String) { viewModelScope.launch { userPreferencesRepository.setCurrency(currency) } }
 
-    fun createNewSeason(name: String, startYear: Int, endYear: Int) {
+    fun createNewSeason(name: String, startYear: Int, endYear: Int, carryOverStudents: Boolean) {
         viewModelScope.launch {
+            val previousSeasonId = userPreferencesRepository.userPreferences.first().activeSeasonId
             val seasonId = financialRepository.insertSeason(
                 Season(
                     name = name,
@@ -115,6 +123,14 @@ class SettingsViewModel @Inject constructor(
                 )
             )
             userPreferencesRepository.setActiveSeasonId(seasonId)
+
+            if (carryOverStudents) {
+                val previousStudents = studentRepository.getActiveStudents(previousSeasonId).first()
+                previousStudents.forEach { student ->
+                    studentRepository.insertStudent(student.copy(id = 0, seasonId = seasonId))
+                }
+                _carriedOverCount.value = previousStudents.size
+            }
         }
     }
 
