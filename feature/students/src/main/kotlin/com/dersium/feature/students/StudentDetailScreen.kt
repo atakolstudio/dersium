@@ -36,6 +36,7 @@ fun StudentDetailScreen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onAddLesson: () -> Unit,
+    onExportPdf: () -> Unit,
     viewModel: StudentDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -232,6 +233,7 @@ fun StudentDetailScreen(
                         }
                     }
                     IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = DersiumColors.TextSecondary) }
+                    IconButton(onClick = onExportPdf) { Icon(Icons.Default.PictureAsPdf, contentDescription = "PDF raporu", tint = DersiumColors.TextSecondary) }
                     IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Öğrenciyi sil", tint = DersiumColors.Expense) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DersiumColors.Background),

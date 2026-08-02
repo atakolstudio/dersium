@@ -30,6 +30,7 @@ import java.util.Locale
 @Composable
 fun ExportScreen(
     onBack: () -> Unit,
+    studentId: Long? = null,
     viewModel: ExportViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -67,6 +68,23 @@ fun ExportScreen(
             item {
                 SectionTitle("PDF Raporlar", Icons.Default.PictureAsPdf, DersiumColors.Expense)
             }
+            if (studentId != null) {
+                item {
+                    ExportCard {
+                        ExportRow(
+                            icon = Icons.Default.Person,
+                            iconColor = DersiumColors.Primary,
+                            title = "Öğrenci Raporu",
+                            subtitle = "Bu öğrencinin tüm ders ve ödeme gecmisi",
+                            btnLabel = "PDF Olustur",
+                            btnColor = DersiumColors.Primary,
+                            isLoading = state.isLoading,
+                            onClick = { viewModel.exportStudentPdf(studentId) },
+                        )
+                    }
+                }
+            }
+
             item {
                 ExportCard {
                     ExportRow(
