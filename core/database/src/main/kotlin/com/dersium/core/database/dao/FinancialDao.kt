@@ -58,6 +58,9 @@ interface SeasonDao {
     @Query("SELECT * FROM seasons WHERE isActive = 1 LIMIT 1")
     fun getActiveSeason(): Flow<SeasonEntity?>
 
+    @Query("SELECT * FROM seasons WHERE id = :seasonId LIMIT 1")
+    fun getSeasonById(seasonId: Long): Flow<SeasonEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSeason(season: SeasonEntity): Long
 

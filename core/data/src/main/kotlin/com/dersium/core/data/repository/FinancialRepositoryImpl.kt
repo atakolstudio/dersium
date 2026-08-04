@@ -6,12 +6,15 @@ import com.dersium.core.database.dao.FinancialDao
 import com.dersium.core.database.dao.SeasonDao
 import com.dersium.core.domain.model.*
 import com.dersium.core.domain.repository.FinancialRepository
+import com.dersium.core.domain.repository.UserPreferencesRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class FinancialRepositoryImpl @Inject constructor(
     private val financialDao: FinancialDao,
     private val seasonDao: SeasonDao,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : FinancialRepository {
 
     override fun getAllExtraIncomes(seasonId: Long): Flow<List<ExtraIncome>> =
@@ -41,8 +44,13 @@ class FinancialRepositoryImpl @Inject constructor(
     override fun getAllSeasons(): Flow<List<Season>> =
         seasonDao.getAllSeasons().map { it.map { e -> e.toDomain() } }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getActiveSeason(): Flow<Season?> =
-        seasonDao.getActiveSeason().map { it?.toDomain() }
+        userPreferencesRepository.userPreferences
+            .map { it.activeSeasonId }
+            .distinctUntilChanged()
+            .flatMapLatest { seasonId -> seasonDao.getSeasonById(seasonId) }
+            .map { it?.toDomain() }
 
     override suspend fun insertExtraIncome(income: ExtraIncome): Long =
         financialDao.insertExtraIncome(income.toEntity())
