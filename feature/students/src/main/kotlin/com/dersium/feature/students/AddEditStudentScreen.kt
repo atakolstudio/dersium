@@ -41,10 +41,31 @@ fun AddEditStudentScreen(
     LaunchedEffect(state.isSaved) { if (state.isSaved) onBack() }
 
     var showSlotDialog by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf(DayOfWeek.MONDAY) }
     var selectedHour by remember { mutableIntStateOf(9) }
     var selectedMinute by remember { mutableIntStateOf(0) }
     var selectedDuration by remember { mutableIntStateOf(60) }
+
+    if (showTimePicker) {
+        val timePickerState = rememberTimePickerState(initialHour = selectedHour, initialMinute = selectedMinute, is24Hour = true)
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Saat Seç", color = DersiumColors.TextPrimary) },
+            text = { TimePicker(state = timePickerState) },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedHour = timePickerState.hour
+                    selectedMinute = timePickerState.minute
+                    showTimePicker = false
+                }) { Text("Tamam", color = DersiumColors.Primary) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text("İptal") }
+            },
+        )
+    }
 
     // Slot ekleme diyalogu
     if (showSlotDialog) {
@@ -78,28 +99,23 @@ fun AddEditStudentScreen(
 
                     // Saat seçimi
                     Text("Başlangıç Saati", style = MaterialTheme.typography.labelMedium, color = DersiumColors.TextSecondary)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        // Saat
-                        OutlinedTextField(
-                            value = selectedHour.toString().padStart(2, '0'),
-                            onValueChange = { v -> v.toIntOrNull()?.let { if (it in 0..23) selectedHour = it } },
-                            label = { Text("Saat") },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = DersiumColors.Primary, unfocusedBorderColor = DersiumColors.Outline, focusedContainerColor = DersiumColors.SurfaceVariant, unfocusedContainerColor = DersiumColors.SurfaceVariant),
-                        )
-                        Text(":", style = MaterialTheme.typography.titleLarge, color = DersiumColors.TextPrimary)
-                        // Dakika
-                        OutlinedTextField(
-                            value = selectedMinute.toString().padStart(2, '0'),
-                            onValueChange = { v -> v.toIntOrNull()?.let { if (it in 0..59) selectedMinute = it } },
-                            label = { Text("Dakika") },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = DersiumColors.Primary, unfocusedBorderColor = DersiumColors.Outline, focusedContainerColor = DersiumColors.SurfaceVariant, unfocusedContainerColor = DersiumColors.SurfaceVariant),
-                        )
+                    Surface(
+                        onClick = { showTimePicker = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = DersiumColors.SurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Icon(Icons.Default.AccessTime, null, tint = DersiumColors.Primary, modifier = Modifier.size(20.dp))
+                            Text(
+                                "${selectedHour.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}",
+                                style = MaterialTheme.typography.titleMedium, color = DersiumColors.TextPrimary, fontWeight = FontWeight.Bold,
+                            )
+                        }
                     }
 
                     // Süre seçimi

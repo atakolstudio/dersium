@@ -112,7 +112,7 @@ class AddEditLessonViewModel @Inject constructor(
     fun onNotesChange(v: String) = _state.update { it.copy(notes = v) }
     fun onPaymentStatusChange(s: PaymentStatus) = _state.update { it.copy(paymentStatus = s) }
     fun onRecurringToggle(enabled: Boolean) = _state.update { it.copy(isRecurring = enabled) }
-    fun onRecurringWeeksChange(weeks: Int) = _state.update { it.copy(recurringWeeks = weeks.coerceIn(2, 26)) }
+    fun onRecurringWeeksChange(weeks: Int) = _state.update { it.copy(recurringWeeks = weeks.coerceIn(2, 52)) }
 
     fun save() {
         val s = _state.value
