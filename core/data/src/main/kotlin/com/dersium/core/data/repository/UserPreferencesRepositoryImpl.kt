@@ -32,6 +32,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val IS_PREMIUM = booleanPreferencesKey("is_premium")
         val DAILY_REMINDER_ENABLED = booleanPreferencesKey("daily_reminder_enabled")
+        val WORKSPACE_ID = stringPreferencesKey("workspace_id")
     }
 
     override val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -52,6 +53,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 isFirstLaunch = prefs[Keys.IS_FIRST_LAUNCH] ?: true,
                 isPremium = prefs[Keys.IS_PREMIUM] ?: false,
                 dailyReminderEnabled = prefs[Keys.DAILY_REMINDER_ENABLED] ?: true,
+                workspaceId = prefs[Keys.WORKSPACE_ID],
             )
         }
 
@@ -64,6 +66,13 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setCurrency(currency: String) {
         context.dataStore.edit { prefs ->
             prefs[Keys.CURRENCY] = currency
+        }
+    }
+
+    override suspend fun setWorkspaceId(workspaceId: String?) {
+        context.dataStore.edit { prefs ->
+            if (workspaceId == null) prefs.remove(Keys.WORKSPACE_ID)
+            else prefs[Keys.WORKSPACE_ID] = workspaceId
         }
     }
 

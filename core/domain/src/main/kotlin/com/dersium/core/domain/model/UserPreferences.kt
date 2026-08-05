@@ -11,6 +11,7 @@ data class UserPreferences(
     val isPremium: Boolean = false,
     val maxFreeStudents: Int = 5,
     val dailyReminderEnabled: Boolean = true,
+    val workspaceId: String? = null,
 )
 
 enum class ThemeAccentColor(val displayName: String, val colorHex: String) {

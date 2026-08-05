@@ -14,6 +14,7 @@ data class SeasonEntity(
 @Entity(tableName = "students", indices = [Index("seasonId")])
 data class StudentEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val syncId: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val surname: String = "",
     val avatarColor: String = "#6366F1",
@@ -31,12 +32,14 @@ data class StudentEntity(
     val isActive: Boolean = true,
     val seasonId: Long = 1L,
     val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
     val scheduleSlots: String = "",
 )
 
 @Entity(tableName = "lessons", indices = [Index("studentId"), Index("date")])
 data class LessonEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val syncId: String = java.util.UUID.randomUUID().toString(),
     val studentId: Long,
     val date: Long,
     val startTime: Int,
@@ -47,6 +50,7 @@ data class LessonEntity(
     val paymentStatus: String = "PENDING",
     val seasonId: Long = 1L,
     val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
 )
 
 @Entity(tableName = "extra_incomes", indices = [Index("seasonId")])

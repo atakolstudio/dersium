@@ -15,4 +15,5 @@ interface UserPreferencesRepository {
     suspend fun setPremium(isPremium: Boolean)
     suspend fun setDailyReminderEnabled(enabled: Boolean)
     suspend fun setCurrency(currency: String)
+    suspend fun setWorkspaceId(workspaceId: String?)
 }

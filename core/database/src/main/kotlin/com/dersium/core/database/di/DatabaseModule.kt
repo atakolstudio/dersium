@@ -23,6 +23,7 @@ object DatabaseModule {
                 DersiumDatabase.MIGRATION_2_3,
                 DersiumDatabase.MIGRATION_3_4,
                 DersiumDatabase.MIGRATION_4_5,
+                DersiumDatabase.MIGRATION_5_6,
             )
             .addCallback(object : androidx.room.RoomDatabase.Callback() {
                 override fun onCreate(db: androidx.sqlite.db.SupportSQLiteDatabase) {

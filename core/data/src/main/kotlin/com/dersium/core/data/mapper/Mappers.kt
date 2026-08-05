@@ -8,7 +8,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 fun StudentEntity.toDomain() = Student(
-    id = id, name = name, surname = surname,
+    id = id, syncId = syncId, name = name, surname = surname,
     avatarColor = avatarColor, lessonFee = lessonFee,
     paymentType = PaymentType.fromName(paymentType),
     lessonCountForPayment = lessonCountForPayment,
@@ -16,12 +16,12 @@ fun StudentEntity.toDomain() = Student(
     motherName = motherName, motherPhone = motherPhone,
     fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
-    seasonId = seasonId, createdAt = createdAt,
+    seasonId = seasonId, createdAt = createdAt, updatedAt = updatedAt,
     scheduleSlots = ScheduleSerializer.deserialize(scheduleSlots),
 )
 
 fun Student.toEntity() = StudentEntity(
-    id = id, name = name, surname = surname,
+    id = id, syncId = syncId, name = name, surname = surname,
     avatarColor = avatarColor, lessonFee = lessonFee,
     paymentType = paymentType.name,
     lessonCountForPayment = lessonCountForPayment,
@@ -29,7 +29,7 @@ fun Student.toEntity() = StudentEntity(
     motherName = motherName, motherPhone = motherPhone,
     fatherName = fatherName, fatherPhone = fatherPhone,
     phone = phone, notes = notes, isActive = isActive,
-    seasonId = seasonId, createdAt = createdAt,
+    seasonId = seasonId, createdAt = createdAt, updatedAt = updatedAt,
     scheduleSlots = ScheduleSerializer.serialize(scheduleSlots),
 )
 

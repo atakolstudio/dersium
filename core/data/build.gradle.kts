@@ -28,4 +28,7 @@ dependencies {
     implementation(libs.workmanager.ktx)
     implementation(libs.coroutines.android)
     implementation(libs.androidx.core.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
 }
