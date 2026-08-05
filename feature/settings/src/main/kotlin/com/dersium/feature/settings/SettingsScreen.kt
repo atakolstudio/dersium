@@ -47,6 +47,8 @@ fun SettingsScreen(
 
     // Yeni sezon dialog state
     var showNewSeasonDialog by remember { mutableStateOf(false) }
+    var showJoinWorkspaceDialog by remember { mutableStateOf(false) }
+    var showLeaveWorkspaceDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(DersiumColors.Background),
@@ -133,6 +135,46 @@ fun SettingsScreen(
                         )
                     },
                 )
+            }
+        }
+
+        // ── Ortak Veritabanı ───────────────────────────────────────────────────
+        item { SectionHeader("Ortak Veritabanı", Icons.Default.Sync) }
+        item {
+            SettingCard {
+                if (state.workspaceId == null) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            "Başka bir cihazla (örneğin kardeşinle) aynı öğrenci ve ders verilerini paylaşabilirsin. Bir kod oluştur ve diğer cihaza bu kodu gir.",
+                            style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                            Button(
+                                onClick = viewModel::createWorkspace,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = DersiumColors.Primary),
+                            ) { Text("Kod Oluştur") }
+                            OutlinedButton(
+                                onClick = { showJoinWorkspaceDialog = true },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                            ) { Text("Koda Katıl") }
+                        }
+                    }
+                } else {
+                    SettingRow(
+                        icon = Icons.Default.Sync,
+                        iconColor = DersiumColors.Income,
+                        title = "Paylaşım Kodu: ${state.workspaceId}",
+                        subtitle = "Bu cihaz ortak veritabanına bağlı. Diğer cihaza bu kodu gir.",
+                        trailing = {
+                            IconButton(onClick = { showLeaveWorkspaceDialog = true }) {
+                                Icon(Icons.Default.LinkOff, contentDescription = "Paylaşımdan ayrıl", tint = DersiumColors.Expense)
+                            }
+                        },
+                    )
+                }
             }
         }
 
@@ -316,6 +358,48 @@ fun SettingsScreen(
                 )
             },
             confirmButton = { TextButton(onClick = viewModel::clearCarriedOverMessage) { Text("Tamam", color = DersiumColors.Primary) } },
+        )
+    }
+
+    // ── Ortak Veritabanı Dialogları ────────────────────────────────────────────
+    if (showJoinWorkspaceDialog) {
+        var code by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showJoinWorkspaceDialog = false },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Koda Katıl", color = DersiumColors.TextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Diğer cihazda oluşturulan paylaşım kodunu gir.", style = MaterialTheme.typography.bodySmall, color = DersiumColors.TextSecondary)
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it.uppercase().take(6) },
+                        label = { Text("Kod") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = code.isNotBlank(),
+                    onClick = { viewModel.joinWorkspace(code); showJoinWorkspaceDialog = false },
+                ) { Text("Katıl", color = DersiumColors.Primary) }
+            },
+            dismissButton = { TextButton(onClick = { showJoinWorkspaceDialog = false }) { Text("İptal") } },
+        )
+    }
+
+    if (showLeaveWorkspaceDialog) {
+        AlertDialog(
+            onDismissRequest = { showLeaveWorkspaceDialog = false },
+            containerColor = DersiumColors.Surface,
+            title = { Text("Paylaşımdan ayrıl?", color = DersiumColors.TextPrimary) },
+            text = { Text("Bu cihaz artık diğer cihazla veri paylaşmayacak. Yerel verilerin silinmez, sadece senkronizasyon durur.", color = DersiumColors.TextSecondary) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.leaveWorkspace(); showLeaveWorkspaceDialog = false }) { Text("Ayrıl", color = DersiumColors.Expense) }
+            },
+            dismissButton = { TextButton(onClick = { showLeaveWorkspaceDialog = false }) { Text("İptal") } },
         )
     }
 

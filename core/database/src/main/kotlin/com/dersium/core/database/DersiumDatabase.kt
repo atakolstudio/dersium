@@ -9,7 +9,7 @@ import com.dersium.core.database.entity.*
 @Database(
     entities = [SeasonEntity::class, StudentEntity::class, LessonEntity::class, ExtraIncomeEntity::class, ExpenseEntity::class],
     views = [LessonWithStudentView::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 abstract class DersiumDatabase : RoomDatabase() {
@@ -85,6 +85,24 @@ abstract class DersiumDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE students")
                 db.execSQL("ALTER TABLE students_new RENAME TO students")
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_students_seasonId ON students(seasonId)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // syncId/updatedAt back multi-device sync (Room's local autoincrement id can't
+                // safely identify a row across devices). Each existing row gets its own random
+                // id — never a shared constant default, or every pre-existing row would collide
+                // onto a single Firestore document the moment sync is turned on.
+                db.execSQL("ALTER TABLE students ADD COLUMN syncId TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE students ADD COLUMN updatedAt INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("UPDATE students SET syncId = lower(hex(randomblob(16))) WHERE syncId = ''")
+                db.execSQL("UPDATE students SET updatedAt = createdAt WHERE updatedAt = 0")
+
+                db.execSQL("ALTER TABLE lessons ADD COLUMN syncId TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE lessons ADD COLUMN updatedAt INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("UPDATE lessons SET syncId = lower(hex(randomblob(16))) WHERE syncId = ''")
+                db.execSQL("UPDATE lessons SET updatedAt = createdAt WHERE updatedAt = 0")
             }
         }
     }

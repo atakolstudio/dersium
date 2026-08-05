@@ -12,6 +12,7 @@ data class ScheduleSlot(
 
 data class Student(
     val id: Long = 0,
+    val syncId: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val surname: String,
     val avatarColor: String = "#6366F1",
@@ -30,6 +31,7 @@ data class Student(
     val startDate: LocalDate = LocalDate.now(),
     val seasonId: Long = 1L,
     val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
     val scheduleSlots: List<ScheduleSlot> = emptyList(),
 ) {
     val fullName: String get() = "$name $surname".trim()

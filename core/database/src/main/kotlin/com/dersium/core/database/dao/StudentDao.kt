@@ -16,6 +16,12 @@ interface StudentDao {
     @Query("SELECT * FROM students WHERE id = :id")
     fun getStudentById(id: Long): Flow<StudentEntity?>
 
+    @Query("SELECT * FROM students WHERE syncId = :syncId LIMIT 1")
+    suspend fun getStudentBySyncId(syncId: String): StudentEntity?
+
+    @Query("DELETE FROM students WHERE syncId = :syncId")
+    suspend fun deleteStudentBySyncId(syncId: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStudent(student: StudentEntity): Long
 

@@ -26,6 +26,7 @@ data class SettingsUiState(
     val activeSeasonId: Long = 1L,
     val activeSeasonName: String = "",
     val seasons: List<Season> = emptyList(),
+    val workspaceId: String? = null,
     // PIN setup
     val showPinSetup: Boolean = false,
     val newPin: String = "",
@@ -55,6 +56,7 @@ class SettingsViewModel @Inject constructor(
             currency = prefs.currency,
             isPremium = prefs.isPremium,
             dailyReminderEnabled = prefs.dailyReminderEnabled,
+            workspaceId = prefs.workspaceId,
             activeSeasonId = prefs.activeSeasonId,
             activeSeasonName = activeSeason?.displayName ?: "",
             seasons = seasons,
@@ -110,6 +112,23 @@ class SettingsViewModel @Inject constructor(
     fun setThemeAccent(color: ThemeAccentColor) { viewModelScope.launch { userPreferencesRepository.setThemeAccentColor(color) } }
     fun setDailyReminderEnabled(enabled: Boolean) { viewModelScope.launch { userPreferencesRepository.setDailyReminderEnabled(enabled) } }
     fun setCurrency(currency: String) { viewModelScope.launch { userPreferencesRepository.setCurrency(currency) } }
+
+    fun createWorkspace() {
+        viewModelScope.launch {
+            val code = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
+            userPreferencesRepository.setWorkspaceId(code)
+        }
+    }
+
+    fun joinWorkspace(code: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setWorkspaceId(code.trim().uppercase())
+        }
+    }
+
+    fun leaveWorkspace() {
+        viewModelScope.launch { userPreferencesRepository.setWorkspaceId(null) }
+    }
 
     fun createNewSeason(name: String, startYear: Int, endYear: Int, carryOverStudents: Boolean) {
         viewModelScope.launch {
