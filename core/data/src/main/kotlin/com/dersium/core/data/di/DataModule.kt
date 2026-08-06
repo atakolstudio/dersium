@@ -4,10 +4,12 @@ import com.dersium.core.data.repository.FinancialRepositoryImpl
 import com.dersium.core.data.repository.LessonRepositoryImpl
 import com.dersium.core.data.repository.StudentRepositoryImpl
 import com.dersium.core.data.repository.UserPreferencesRepositoryImpl
+import com.dersium.core.data.repository.WorkspaceRepositoryImpl
 import com.dersium.core.domain.repository.FinancialRepository
 import com.dersium.core.domain.repository.LessonRepository
 import com.dersium.core.domain.repository.StudentRepository
 import com.dersium.core.domain.repository.UserPreferencesRepository
+import com.dersium.core.domain.repository.WorkspaceRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,4 +35,8 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindUserPreferencesRepository(impl: UserPreferencesRepositoryImpl): UserPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkspaceRepository(impl: WorkspaceRepositoryImpl): WorkspaceRepository
 }
