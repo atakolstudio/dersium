@@ -403,6 +403,17 @@ fun SettingsScreen(
         )
     }
 
+    val workspaceMessage by viewModel.workspaceMessage.collectAsStateWithLifecycle()
+    workspaceMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearWorkspaceMessage,
+            containerColor = DersiumColors.Surface,
+            title = { Text("Ortak Veritabanı", color = DersiumColors.TextPrimary) },
+            text = { Text(msg, color = DersiumColors.TextSecondary) },
+            confirmButton = { TextButton(onClick = viewModel::clearWorkspaceMessage) { Text("Tamam", color = DersiumColors.Primary) } },
+        )
+    }
+
     // ── PIN Setup ──────────────────────────────────────────────────────────────
     if (pinState.isVisible) {
         PinSetupDialog(

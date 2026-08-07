@@ -9,6 +9,7 @@ import com.dersium.core.domain.model.ThemeAccentColor
 import com.dersium.core.domain.repository.FinancialRepository
 import com.dersium.core.domain.repository.StudentRepository
 import com.dersium.core.domain.repository.UserPreferencesRepository
+import com.dersium.core.domain.repository.WorkspaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val financialRepository: FinancialRepository,
     private val studentRepository: StudentRepository,
+    private val workspaceRepository: WorkspaceRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -115,16 +117,33 @@ class SettingsViewModel @Inject constructor(
 
     fun createWorkspace() {
         viewModelScope.launch {
-            val code = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
-            userPreferencesRepository.setWorkspaceId(code)
+            _workspaceMessage.value = null
+            repeat(5) {
+                val code = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
+                if (workspaceRepository.claimWorkspaceCode(code)) {
+                    userPreferencesRepository.setWorkspaceId(code)
+                    return@launch
+                }
+            }
+            _workspaceMessage.value = "Kod oluşturulamadı, tekrar dene."
         }
     }
 
     fun joinWorkspace(code: String) {
         viewModelScope.launch {
-            userPreferencesRepository.setWorkspaceId(code.trim().uppercase())
+            _workspaceMessage.value = null
+            val normalized = code.trim().uppercase()
+            if (workspaceRepository.workspaceExists(normalized)) {
+                userPreferencesRepository.setWorkspaceId(normalized)
+            } else {
+                _workspaceMessage.value = "Bu kodla bir ortak veritabanı bulunamadı. Kodu kontrol et."
+            }
         }
     }
+
+    private val _workspaceMessage = MutableStateFlow<String?>(null)
+    val workspaceMessage: StateFlow<String?> = _workspaceMessage.asStateFlow()
+    fun clearWorkspaceMessage() { _workspaceMessage.value = null }
 
     fun leaveWorkspace() {
         viewModelScope.launch { userPreferencesRepository.setWorkspaceId(null) }
